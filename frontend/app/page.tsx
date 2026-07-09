@@ -15,7 +15,7 @@ type GroupedMatches = {
 };
 
 async function getMatches(): Promise<GroupedMatches> {
-  const res = await fetch('http://127.0.0.1:8000/api/matches/', { 
+  const res = await fetch('https://tomi19sdz.pythonanywhere.com/api/matches/', { 
     cache: 'no-store'
   });
   
