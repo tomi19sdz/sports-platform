@@ -14,3 +14,11 @@ class Video(models.Model):
 class Analysis(models.Model):
     match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='analyses')
     content = models.TextField()
+    
+    # NOWE POLE: Domyślnie każda nowa analiza jest ukryta (False)
+    is_approved = models.BooleanField(default=False) 
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Analiza do meczu: {self.match.home_team} vs {self.match.away_team}"
