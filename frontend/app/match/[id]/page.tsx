@@ -17,7 +17,7 @@ interface Match {
 }
 
 async function getMatch(id: string): Promise<Match> {
-  const res = await fetch(`http://127.0.0.1:8000/api/matches/${id}/`, { cache: 'no-store' });
+  const res = await fetch(`https://tomi19sdz.pythonanywhere.com/api/matches/${id}/`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Nie udało się pobrać meczu.');
   return res.json();
 }
