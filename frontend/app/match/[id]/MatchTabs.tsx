@@ -42,8 +42,8 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
       });
 
       if (res.ok) {
-        // Zamiast dodawać do listy, wyświetlamy powiadomienie
-        alert('Dziękujemy! Twoja analiza została wysłana i oczekuje na zatwierdzenie przez administratora.');
+        // Zamiast dodawać do listy, pokazujemy tylko komunikat:
+        alert('Twoja analiza została wysłana i oczekuje na zatwierdzenie przez administratora.');
         setAnalysisText(''); // Czyścimy pole tekstowe
       } else {
         alert('Wystąpił błąd podczas dodawania analizy.');
