@@ -42,8 +42,9 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
       });
 
       if (res.ok) {
-        setLocalAnalyses([...localAnalyses, { id: Date.now(), content: analysisText }]);
-        setAnalysisText('');
+        // Zamiast dodawać do listy, wyświetlamy powiadomienie
+        alert('Dziękujemy! Twoja analiza została wysłana i oczekuje na zatwierdzenie przez administratora.');
+        setAnalysisText(''); // Czyścimy pole tekstowe
       } else {
         alert('Wystąpił błąd podczas dodawania analizy.');
       }
