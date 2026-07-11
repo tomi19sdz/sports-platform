@@ -5,10 +5,12 @@ from collections import defaultdict
 from django.utils.dateparse import parse_datetime
 from django.http import HttpResponse
 from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.views import APIView # NOWY IMPORT
 from rest_framework.response import Response
+from rest_framework import status # NOWY IMPORT
 
-# Upewnij się, że ten import wskazuje na Twój model
-from .models import Match
+# Zaktualizowany import - dodano Analysis
+from .models import Match, Analysis
 from .serializers import MatchSerializer
 
 class MatchListView(ListAPIView):
@@ -30,6 +32,25 @@ class MatchListView(ListAPIView):
 class MatchDetailView(RetrieveAPIView):
     queryset = Match.objects.all()
     serializer_class = MatchSerializer
+
+# ==========================================
+# WIDOK DO DODAWANIA ANALIZ (NOWE)
+# ==========================================
+class AddAnalysisView(APIView):
+    def post(self, request, match_id):
+        # 1. Odbieramy treść wpisaną przez użytkownika
+        content = request.data.get('content')
+        
+        if not content:
+            return Response({"error": "Treść analizy nie może być pusta."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 2. Szukamy odpowiedniego meczu i przypisujemy do niego analizę
+        try:
+            match = Match.objects.get(id=match_id)
+            Analysis.objects.create(match=match, content=content)
+            return Response({"message": "Analiza dodana pomyślnie!"}, status=status.HTTP_201_CREATED)
+        except Match.DoesNotExist:
+            return Response({"error": "Podany mecz nie istnieje."}, status=status.HTTP_404_NOT_FOUND)
 
 # ==========================================
 # FUNKCJA DO AUTOMATYZACJI POBIERANIA (WEBHOOK)
