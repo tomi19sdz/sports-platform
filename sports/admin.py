@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Match
+from .models import Match, Video, Analysis # Dodaliśmy Analysis do importów
 
-# Rejestrujemy tylko to, co wiemy na 100%, że istnieje
 admin.site.register(Match)
+admin.site.register(Video)
+admin.site.register(Analysis) # Ta linijka dodaje zakładkę do panelu
