@@ -1,6 +1,7 @@
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from collections import defaultdict
+from django.http import HttpResponse # <-- NOWY IMPORT
 from .models import Match
 from .serializers import MatchSerializer
 
@@ -28,3 +29,18 @@ class MatchListView(ListAPIView):
 class MatchDetailView(RetrieveAPIView):
     queryset = Match.objects.all()
     serializer_class = MatchSerializer
+
+# ==========================================
+# NOWA FUNKCJA DO AUTOMATYZACJI POBIERANIA
+# ==========================================
+def trigger_fetch(request):
+    # 1. Sprawdzamy hasło, aby nikt obcy nie zepsuł Ci bazy
+    token = request.GET.get('token')
+    if token != 'moje-tajne-haslo-123':
+        return HttpResponse("Brak dostępu", status=403)
+    
+    # 2. MIEJSCE NA LOGIKĘ POBIERAJĄCĄ
+    # Tutaj na razie jest pusto! Musimy napisać kod, który faktycznie 
+    # połączy się z zewnętrznym źródłem i zapisze dane do bazy.
+    
+    return HttpResponse("Pomyślnie uruchomiono skrypt aktualizujący mecze!")
