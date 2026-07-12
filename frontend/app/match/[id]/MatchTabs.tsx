@@ -1,112 +1,93 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
+import React, { useState } from 'react';
 
-export default function HomePage() {
-  const [matches, setMatches] = useState({});
-  const [activeTab, setActiveTab] = useState('nadchodzace');
+interface Video {
+  id: number;
+  video_url: string;
+}
 
-  useEffect(() => {
-    const fetchMatches = async () => {
-      try {
-        // Pobieramy dane z serwera, upewniając się, że nie są zapisane w cache
-        const res = await fetch('https://tomi19sdz.pythonanywhere.com/api/matches/', {
-          cache: 'no-store'
-        });
-        const data = await res.json();
-        setMatches(data);
-      } catch (error) {
-        console.error('Błąd pobierania meczów:', error);
+interface Analysis {
+  id: number;
+  content: string;
+}
+
+interface MatchTabsProps {
+  matchId: number;
+  videos: Video[];
+  analyses: Analysis[];
+}
+
+const getYouTubeId = (url: string) => {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+};
+
+export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }: MatchTabsProps) {
+  const [activeTab, setActiveTab] = useState('chat');
+  const [analysisText, setAnalysisText] = useState('');
+  const [localAnalyses, setLocalAnalyses] = useState<Analysis[]>(initialAnalyses || []);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const submitAnalysis = async () => {
+    if (!analysisText.trim()) return;
+    setIsSubmitting(true);
+    
+    try {
+      const res = await fetch(`https://tomi19sdz.pythonanywhere.com/api/matches/${matchId}/add_analysis/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: analysisText }),
+      });
+
+      if (res.ok) {
+        alert('Twoja analiza została wysłana i oczekuje na zatwierdzenie przez administratora.');
+        setAnalysisText(''); 
+      } else {
+        alert('Wystąpił błąd podczas dodawania analizy.');
       }
-    };
-    fetchMatches();
-  }, []);
-
-  // KRYTYCZNA ZMIANA: Ustawiamy "dzisiaj" na sam początek dnia (00:00:00).
-  // Dzięki temu dzisiejsze mecze nie uciekną do historii przed północą.
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const upcomingMatches: Record<string, any> = {};
-  const historyMatches: Record<string, any> = {};
-
-  // Rozdzielamy mecze na zakładki
-  Object.entries(matches).forEach(([dateString, dailyMatches]) => {
-    const matchDate = new Date(dateString);
-    matchDate.setHours(0, 0, 0, 0); // Porównujemy całe dnie, a nie konkretne godziny
-
-    if (matchDate >= today) {
-      upcomingMatches[dateString] = dailyMatches;
-    } else {
-      historyMatches[dateString] = dailyMatches;
+    } catch (error) {
+      alert('Błąd połączenia z serwerem.');
+    } finally {
+      setIsSubmitting(false);
     }
-  });
-
-  const displayMatches = activeTab === 'nadchodzace' ? upcomingMatches : historyMatches;
-  const hasMatches = Object.keys(displayMatches).length > 0;
+  };
 
   return (
-    <div className="min-h-screen bg-[#0a0f16] text-slate-200 p-8 flex flex-col items-center">
-      <h1 className="text-4xl md:text-5xl font-black text-white mb-12 tracking-wide uppercase mt-10">
-        Terminarz Spotkań
-      </h1>
-      
-      {/* Przyciski nawigacyjne */}
-      <div className="flex space-x-4 mb-16">
-        <button 
-          onClick={() => setActiveTab('nadchodzace')} 
-          className={`py-3 px-8 font-bold rounded-full transition-all duration-300 ${
-            activeTab === 'nadchodzace' 
-              ? 'bg-[#00df81] text-black shadow-[0_0_20px_rgba(0,223,129,0.4)]' 
-              : 'bg-[#1a2332] text-slate-300 hover:bg-[#232f43]'
-          }`}
-        >
-          Nadchodzące
-        </button>
-        <button 
-          onClick={() => setActiveTab('historia')} 
-          className={`py-3 px-8 font-bold rounded-full transition-all duration-300 ${
-            activeTab === 'historia' 
-              ? 'bg-[#1a2332] text-white ring-2 ring-slate-600' 
-              : 'bg-[#1a2332] text-slate-300 hover:bg-[#232f43]'
-          }`}
-        >
-          Historia
-        </button>
+    <>
+      <div className="flex border-b border-slate-800 mb-8">
+        <button onClick={() => setActiveTab('chat')} className={`py-3 px-8 font-bold text-lg border-b-2 transition-colors ${activeTab === 'chat' ? 'border-emerald-500 text-emerald-500' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Czat</button>
+        <button onClick={() => setActiveTab('video')} className={`py-3 px-8 font-bold text-lg border-b-2 transition-colors ${activeTab === 'video' ? 'border-emerald-500 text-emerald-500' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Wideo</button>
+        <button onClick={() => setActiveTab('analysis')} className={`py-3 px-8 font-bold text-lg border-b-2 transition-colors ${activeTab === 'analysis' ? 'border-emerald-500 text-emerald-500' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Analizy</button>
       </div>
-
-      {/* Lista meczów */}
-      <div className="w-full max-w-3xl">
-        {!hasMatches ? (
-          <div className="text-center text-[#64748b] text-xl mt-10">
-            {activeTab === 'nadchodzace' ? 'Brak nadchodzących meczów.' : 'Brak meczów w historii.'}
+      
+      <div className="bg-slate-950/50 rounded-2xl min-h-[400px] p-6 border border-slate-800/50 flex flex-col w-full text-slate-200">
+        {activeTab === 'chat' && <div className="text-center text-slate-500 mt-20">Czat w przygotowaniu...</div>}
+        {activeTab === 'video' && (
+          <div className="w-full h-full flex flex-col items-center justify-center">
+            {videos && videos.length > 0 ? videos.map((v) => {
+              const id = getYouTubeId(v.video_url);
+              return id ? (
+                <div key={v.id} className="w-full max-w-4xl aspect-video rounded-xl overflow-hidden mb-6"><iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${id}`} allowFullScreen></iframe></div>
+              ) : null;
+            }) : <div className="text-slate-500">Brak wideo.</div>}
           </div>
-        ) : (
-          Object.entries(displayMatches).map(([date, dailyMatches]: [string, any]) => (
-            <div key={date} className="mb-12">
-              <h2 className="text-xl font-bold text-[#64748b] mb-6 border-b border-[#1e293b] pb-2">
-                {date}
-              </h2>
-              <div className="space-y-4">
-                {dailyMatches.map((match: any) => (
-                  <div key={match.id} className="bg-[#111827] border border-[#1e293b] p-6 rounded-2xl flex justify-between items-center hover:border-[#00df81]/50 transition-colors">
-                    <div className="flex items-center space-x-6">
-                      <span className="text-2xl font-bold text-white">{match.home_team}</span>
-                      <span className="text-slate-500 font-medium">vs</span>
-                      <span className="text-2xl font-bold text-white">{match.away_team}</span>
-                    </div>
-                    {/* Zmień '/matches/' na swój prawdziwy link do szczegółów, jeśli jest inny */}
-                    <Link href={`/matches/${match.id}`} className="bg-[#1e293b] hover:bg-[#2dd4bf] hover:text-black text-slate-300 py-2 px-6 rounded-xl font-bold transition-all">
-                      Zobacz
-                    </Link>
-                  </div>
-                ))}
-              </div>
+        )}
+        {activeTab === 'analysis' && (
+          <div className="flex flex-col w-full max-w-4xl mx-auto space-y-8">
+            <div className="bg-slate-900 border border-slate-700 p-4 rounded-xl">
+              <h3 className="text-emerald-400 font-bold mb-3">Dodaj analizę:</h3>
+              <textarea className="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-slate-200" value={analysisText} onChange={(e) => setAnalysisText(e.target.value)} />
+              <button onClick={submitAnalysis} disabled={isSubmitting} className="mt-3 bg-emerald-600 text-white font-bold py-2 px-6 rounded-lg">Wyślij</button>
             </div>
-          ))
+            <div>
+              <h3 className="text-xl font-bold mb-4">Dodane analizy:</h3>
+              {localAnalyses.map((a) => <div key={a.id} className="bg-slate-800/50 p-4 rounded-lg mb-4">{a.content}</div>)}
+            </div>
+          </div>
         )}
       </div>
-    </div>
+    </>
   );
 }
