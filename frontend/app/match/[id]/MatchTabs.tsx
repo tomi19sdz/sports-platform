@@ -26,9 +26,15 @@ const getYouTubeId = (url: string) => {
 
 export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }: MatchTabsProps) {
   const [activeTab, setActiveTab] = useState('chat');
+  
+  // Stany dla Analiz
   const [analysisText, setAnalysisText] = useState('');
   const [localAnalyses, setLocalAnalyses] = useState<Analysis[]>(initialAnalyses || []);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Stany dla Czatu
+  const [chatMessages, setChatMessages] = useState<{id: number, text: string}[]>([]);
+  const [chatInput, setChatInput] = useState('');
 
   const submitAnalysis = async () => {
     if (!analysisText.trim()) return;
@@ -54,6 +60,18 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
     }
   };
 
+  const sendChatMessage = () => {
+    if (!chatInput.trim()) return;
+    
+    const newMessage = {
+      id: Date.now(),
+      text: chatInput
+    };
+    
+    setChatMessages([...chatMessages, newMessage]);
+    setChatInput('');
+  };
+
   return (
     <>
       <div className="flex border-b border-slate-800 mb-8">
@@ -63,7 +81,45 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
       </div>
       
       <div className="bg-slate-950/50 rounded-2xl min-h-[400px] p-6 border border-slate-800/50 flex flex-col w-full text-slate-200">
-        {activeTab === 'chat' && <div className="text-center text-slate-500 mt-20">Czat w przygotowaniu...</div>}
+        
+        {/* ZAKŁADKA CZAT */}
+        {activeTab === 'chat' && (
+          <div className="flex flex-col h-[400px]">
+            <div className="flex-1 overflow-y-auto mb-4 space-y-4 pr-2">
+              {chatMessages.length === 0 ? (
+                <div className="text-center text-slate-500 mt-20 flex flex-col items-center">
+                  <span className="text-4xl mb-3">💬</span>
+                  <p>Brak wiadomości. Bądź pierwszy!</p>
+                </div>
+              ) : (
+                chatMessages.map((msg) => (
+                  <div key={msg.id} className="bg-emerald-600/20 border border-emerald-500/30 p-3 rounded-2xl rounded-tr-none max-w-[80%] ml-auto">
+                    <p className="text-slate-100">{msg.text}</p>
+                  </div>
+                ))
+              )}
+            </div>
+            
+            <div className="flex space-x-3 mt-auto">
+              <input 
+                type="text" 
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
+                placeholder="Napisz wiadomość na czacie..." 
+                className="flex-1 bg-slate-900 border border-slate-700 rounded-xl p-4 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+              />
+              <button 
+                onClick={sendChatMessage}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-[0_0_15px_rgba(0,223,129,0.2)]"
+              >
+                Wyślij
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ZAKŁADKA WIDEO */}
         {activeTab === 'video' && (
           <div className="w-full h-full flex flex-col items-center justify-center">
             {videos && videos.length > 0 ? videos.map((v) => {
@@ -74,16 +130,25 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
             }) : <div className="text-slate-500">Brak wideo.</div>}
           </div>
         )}
+
+        {/* ZAKŁADKA ANALIZY */}
         {activeTab === 'analysis' && (
           <div className="flex flex-col w-full max-w-4xl mx-auto space-y-8">
             <div className="bg-slate-900 border border-slate-700 p-4 rounded-xl">
               <h3 className="text-emerald-400 font-bold mb-3">Dodaj analizę:</h3>
-              <textarea className="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-slate-200" value={analysisText} onChange={(e) => setAnalysisText(e.target.value)} />
+              <textarea 
+                className="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-slate-200 min-h-[120px]" 
+                value={analysisText} 
+                onChange={(e) => setAnalysisText(e.target.value)} 
+              />
               <button onClick={submitAnalysis} disabled={isSubmitting} className="mt-3 bg-emerald-600 text-white font-bold py-2 px-6 rounded-lg">Wyślij</button>
             </div>
             <div>
               <h3 className="text-xl font-bold mb-4">Dodane analizy:</h3>
-              {localAnalyses.map((a) => <div key={a.id} className="bg-slate-800/50 p-4 rounded-lg mb-4">{a.content}</div>)}
+              {/* Tutaj znajduje się naprawa formatowania tekstu: klasa whitespace-pre-wrap */}
+              {localAnalyses.map((a) => (
+                <div key={a.id} className="bg-slate-800/50 p-4 rounded-lg mb-4 whitespace-pre-wrap">{a.content}</div>
+              ))}
             </div>
           </div>
         )}
