@@ -7,6 +7,9 @@ class Match(models.Model):
     away_logo = models.URLField(max_length=500, blank=True, null=True)
     match_date = models.DateTimeField()
 
+    def __str__(self):
+        return f"{self.home_team} vs {self.away_team}"
+
 class Video(models.Model):
     match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='videos')
     video_url = models.URLField()
@@ -22,3 +25,15 @@ class Analysis(models.Model):
 
     def __str__(self):
         return f"Analiza do meczu: {self.match.home_team} vs {self.match.away_team}"
+
+# ==========================================
+# NOWY MODEL DLA WIADOMOŚCI CZATU
+# ==========================================
+class ChatMessage(models.Model):
+    match = models.ForeignKey(Match, related_name='chat_messages', on_delete=models.CASCADE)
+    author = models.CharField(max_length=50, default="Anonim")
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.author}: {self.text[:20]}"
