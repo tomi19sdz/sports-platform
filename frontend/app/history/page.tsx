@@ -1,107 +1,97 @@
-import React from 'react';
 import Link from 'next/link';
+import React from 'react';
 
 interface Match {
   id: number;
   home_team: string;
   away_team: string;
+  home_logo: string | null;
+  away_logo: string | null;
   match_date: string;
-  home_logo?: string; 
-  away_logo?: string;
+  home_score: number | null;
+  away_score: number | null;
+  status: string;
 }
 
-type GroupedMatches = {
-  [date: string]: Match[];
-};
-
-async function getMatches(): Promise<GroupedMatches> {
-  const res = await fetch('https://tomi19sdz.pythonanywhere.com/api/matches/', { 
-    cache: 'no-store'
+async function getMatches() {
+  const res = await fetch('https://tomi19sdz.pythonanywhere.com/api/matches/', {
+    next: { revalidate: 60 } 
   });
-  
-  if (!res.ok) {
-    throw new Error('Nie udało się pobrać meczów.');
-  }
-  return res.json();
+  if (!res.ok) return {};
+  return res.json() as Promise<Record<string, Match[]>>;
 }
 
 export default async function HistoryPage() {
-  const matches = await getMatches();
-  
+  const groupedMatches = await getMatches();
   const todayStr = new Date().toISOString().split('T')[0];
   
-  // Filtrujemy: zostawiamy tylko te daty, które są mniejsze od dzisiaj (przeszłość)
-  // .reverse() sprawia, że najnowsze historyczne mecze są na samej górze
-  const historyMatches = Object.entries(matches)
-    .filter(([date]) => date < todayStr)
-    .reverse();
+  // Filtrujemy TYLKO mecze zakończone/przeszłe (data mniejsza niż dzisiejsza)
+  const pastMatches = Object.entries(groupedMatches).filter(([date]) => date < todayStr);
+  
+  // Odwracamy kolejność, aby najświeższa historia była na samej górze
+  pastMatches.sort((a, b) => b[0].localeCompare(a[0]));
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-black font-sans text-slate-100 p-8">
-      
-      <div className="max-w-4xl mx-auto space-y-12 pt-12">
-        <h1 className="text-5xl font-extrabold text-center mb-8 text-white drop-shadow-lg tracking-wide uppercase">
-          Historia Spotkań
-        </h1>
+    <main className="min-h-screen bg-[#0a0f16] text-slate-200 p-8">
+      <div className="max-w-4xl mx-auto">
+        <header className="mb-10 text-center mt-10">
+          <h1 className="text-5xl font-black text-white mb-4 tracking-tight">
+            Sports <span className="text-slate-500">History</span>
+          </h1>
+          <p className="text-slate-400 text-lg mb-8">Archiwum zakończonych spotkań</p>
+          
+          {/* Nawigacja / Zakładki (Odwrotne kolory) */}
+          <div className="flex justify-center space-x-4">
+            <Link href="/" className="px-6 py-2 bg-slate-800 text-slate-300 rounded-full font-bold hover:bg-slate-700 transition-colors">
+              Nadchodzące
+            </Link>
+            <Link href="/history" className="px-6 py-2 bg-emerald-600 text-white rounded-full font-bold shadow-lg shadow-emerald-500/20">
+              Historia
+            </Link>
+          </div>
+        </header>
 
-        {/* --- MENU NAWIGACYJNE --- */}
-        <div className="flex justify-center gap-6 mb-12">
-          <Link href="/" className="px-8 py-3 bg-slate-800/80 text-slate-300 text-lg font-bold rounded-full border border-slate-600 hover:bg-slate-700 hover:text-white transition-all">
-            Nadchodzące
-          </Link>
-          <Link href="/history" className="px-8 py-3 bg-emerald-500 text-slate-950 text-lg font-bold rounded-full shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all">
-            Historia
-          </Link>
-        </div>
-        {/* ----------------------- */}
-        
-        <div className="space-y-12">
-          {historyMatches.length === 0 ? (
-            <p className="text-center text-slate-400 text-xl">Brak rozegranych meczów w bazie.</p>
-          ) : (
-            historyMatches.map(([date, dailyMatches]) => (
-              <div key={date}>
-                <h2 className="text-2xl font-bold text-slate-400 border-b border-slate-600 pb-2 mb-6 uppercase tracking-widest text-center">
-                  Zakończone: {date}
-                </h2>
-                
-                <div className="space-y-6">
-                  {dailyMatches.map((match) => (
-                    <Link 
-                      href={`/match/${match.id}`}
-                      key={match.id} 
-                      className="bg-slate-900/40 backdrop-blur-md rounded-2xl shadow-xl p-8 flex justify-between items-center border border-slate-800 hover:bg-slate-800/60 hover:border-slate-600 transition-all duration-300 cursor-pointer block opacity-75 hover:opacity-100"
-                    >
-                      <div className="w-2/5 flex justify-end items-center gap-4">
-                        <div className="text-3xl font-bold text-slate-300 tracking-wide text-right">
-                          {match.home_team}
-                        </div>
-                        {match.home_logo && (
-                          <img src={match.home_logo} alt={match.home_team} className="w-12 h-12 object-contain grayscale hover:grayscale-0 transition-all duration-300" />
-                        )}
-                      </div>
-                      
-                      <div className="w-1/5 flex justify-center">
-                        <span className="bg-slate-700 text-slate-300 text-sm font-black px-4 py-1 rounded-full">
-                          WYNIK
+        {pastMatches.length === 0 ? (
+          <div className="text-center text-slate-500 mt-20 flex flex-col items-center">
+            <span className="text-6xl mb-4">📜</span>
+            <p className="text-xl">Brak historii meczów.</p>
+          </div>
+        ) : (
+          pastMatches.map(([date, matches]) => (
+            <div key={date} className="mb-12 opacity-80 hover:opacity-100 transition-opacity">
+              <h2 className="text-2xl font-bold text-slate-400 mb-6 border-b border-slate-800/80 pb-3 flex items-center">
+                <span className="bg-slate-800 text-slate-400 px-3 py-1 rounded-lg text-sm mr-3">📅</span>
+                {date}
+              </h2>
+              
+              <div className="grid gap-4">
+                {matches.map((match) => (
+                  <Link key={match.id} href={`/match/${match.id}`} className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 hover:border-slate-500/50 hover:bg-slate-800/60 transition-all duration-300 flex flex-col sm:flex-row items-center justify-between group">
+                    <div className="flex items-center space-x-4 w-full sm:w-2/5 justify-end filter grayscale group-hover:grayscale-0 transition-all">
+                      <span className="font-bold text-lg text-right">{match.home_team}</span>
+                      {match.home_logo ? <img src={match.home_logo} alt={match.home_team} className="w-12 h-12 object-contain" /> : <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-xs text-slate-500">Brak</div>}
+                    </div>
+                    
+                    <div className="flex flex-col items-center justify-center px-4 w-full sm:w-1/5 my-4 sm:my-0">
+                      {['FINISHED', 'IN_PLAY', 'PAUSED'].includes(match.status) ? (
+                        <span className="bg-slate-800 px-4 py-1.5 rounded-xl text-slate-300 font-black tracking-widest text-lg border border-slate-700">
+                          {match.home_score ?? 0} : {match.away_score ?? 0}
                         </span>
-                      </div>
-                      
-                      <div className="w-2/5 flex justify-start items-center gap-4">
-                        {match.away_logo && (
-                          <img src={match.away_logo} alt={match.away_team} className="w-12 h-12 object-contain grayscale hover:grayscale-0 transition-all duration-300" />
-                        )}
-                        <div className="text-3xl font-bold text-slate-300 tracking-wide text-left">
-                          {match.away_team}
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+                      ) : (
+                        <span className="bg-slate-950 px-4 py-1.5 rounded-xl text-slate-600 font-black tracking-widest text-sm border border-slate-800">VS</span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center space-x-4 w-full sm:w-2/5 justify-start filter grayscale group-hover:grayscale-0 transition-all">
+                      {match.away_logo ? <img src={match.away_logo} alt={match.away_team} className="w-12 h-12 object-contain" /> : <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-xs text-slate-500">Brak</div>}
+                      <span className="font-bold text-lg text-left">{match.away_team}</span>
+                    </div>
+                  </Link>
+                ))}
               </div>
-            ))
-          )}
-        </div>
+            </div>
+          ))
+        )}
       </div>
     </main>
   );
