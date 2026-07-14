@@ -49,19 +49,50 @@ class MatchChatView(APIView):
         except Match.DoesNotExist: return Response({"error": "Brak meczu"}, status=status.HTTP_404_NOT_FOUND)
 
 def trigger_fetch(request):
-    # Logika z obsługą wyniku
+    token = request.GET.get('token')
+    if token != 'moje-tajne-haslo-123': 
+        return HttpResponse("Brak dostępu", status=403)
+        
     headers = { 'X-Auth-Token': 'c92a85877e2c4319aea223d3543532f8' }
-    url = 'https://api.football-data.org/v4/matches?competitions=WC,PL,CL,PD,BL1,DED,FL1,PPL,EC,SA'
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        for m in response.json().get('matches', []):
-            score = m.get('score', {}).get('fullTime', {})
-            Match.objects.update_or_create(
-                home_team=m['homeTeam']['name'], away_team=m['awayTeam']['name'], match_date=parse_datetime(m['utcDate']),
-                defaults={
-                    'home_logo': m['homeTeam'].get('crest', ''), 'away_logo': m['awayTeam'].get('crest', ''),
-                    'home_score': score.get('home'), 'away_score': score.get('away'), 'status': m.get('status')
-                }
-            )
-        return HttpResponse("Wyniki zaktualizowane!")
-    return HttpResponse("Błąd API", status=500)
+    
+    # --- KLUCZOWA ZMIANA: Zmuszamy API do sprawdzania 7 dni wstecz ---
+    dzisiaj = date.today()
+    tydzien_temu = dzisiaj - timedelta(days=7)
+    kolejne_dni = dzisiaj + timedelta(days=3)
+    
+    date_from = tydzien_temu.strftime('%Y-%m-%d')
+    date_to = kolejne_dni.strftime('%Y-%m-%d')
+    
+    wybrane_ligi = "WC,PL,CL,PD,BL1,DED,FL1,PPL,EC,SA"
+    url = f'https://api.football-data.org/v4/matches?competitions={wybrane_ligi}&dateFrom={date_from}&dateTo={date_to}'
+    
+    try:
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            matches = data.get('matches', [])
+            
+            for m in matches:
+                home_team = m.get('homeTeam')
+                away_team = m.get('awayTeam')
+                
+                if home_team and away_team and home_team.get('name') and away_team.get('name'):
+                    # Pobieranie wyniku z API
+                    score = m.get('score', {}).get('fullTime', {})
+                    
+                    Match.objects.update_or_create(
+                        home_team=home_team['name'], 
+                        away_team=away_team['name'], 
+                        match_date=parse_datetime(m['utcDate']),
+                        defaults={
+                            'home_logo': home_team.get('crest', ''), 
+                            'away_logo': away_team.get('crest', ''),
+                            'home_score': score.get('home'), 
+                            'away_score': score.get('away'), 
+                            'status': m.get('status')
+                        }
+                    )
+            return HttpResponse(f"Sukces! Pobrano wyniki od {date_from} do {date_to}.")
+        return HttpResponse(f"Błąd API: {response.status_code}", status=500)
+    except Exception as e:
+        return HttpResponse(f"Wystąpił błąd: {e}", status=500)
