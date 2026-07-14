@@ -1,39 +1,28 @@
 from django.db import models
 
 class Match(models.Model):
-    home_team = models.CharField(max_length=100)
-    away_team = models.CharField(max_length=100)
-    home_logo = models.URLField(max_length=500, blank=True, null=True)
-    away_logo = models.URLField(max_length=500, blank=True, null=True)
+    home_team = models.CharField(max_length=200)
+    away_team = models.CharField(max_length=200)
+    home_logo = models.URLField(null=True, blank=True)
+    away_logo = models.URLField(null=True, blank=True)
     match_date = models.DateTimeField()
+    
+    # Nowe pola na wynik
+    home_score = models.IntegerField(null=True, blank=True)
+    away_score = models.IntegerField(null=True, blank=True)
+    status = models.CharField(max_length=20, default='SCHEDULED')
 
     def __str__(self):
         return f"{self.home_team} vs {self.away_team}"
 
-class Video(models.Model):
-    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='videos')
-    video_url = models.URLField()
-
 class Analysis(models.Model):
     match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='analyses')
     content = models.TextField()
-    
-    # NOWE POLE: Domyślnie każda nowa analiza jest ukryta (False)
-    is_approved = models.BooleanField(default=False) 
-    
     created_at = models.DateTimeField(auto_now_add=True)
+    is_approved = models.BooleanField(default=False)
 
-    def __str__(self):
-        return f"Analiza do meczu: {self.match.home_team} vs {self.match.away_team}"
-
-# ==========================================
-# NOWY MODEL DLA WIADOMOŚCI CZATU
-# ==========================================
 class ChatMessage(models.Model):
-    match = models.ForeignKey(Match, related_name='chat_messages', on_delete=models.CASCADE)
-    author = models.CharField(max_length=50, default="Anonim")
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='chat_messages')
+    author = models.CharField(max_length=100)
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.author}: {self.text[:20]}"
