@@ -1,6 +1,6 @@
 from django.urls import path
-# Dodajemy AddAnalysisView do importów
-from .views import MatchListView, MatchDetailView, trigger_fetch, AddAnalysisView
+# Dodaliśmy MatchChatView do importów!
+from .views import MatchListView, MatchDetailView, trigger_fetch, AddAnalysisView, MatchChatView
 
 urlpatterns = [
     path('matches/', MatchListView.as_view(), name='match-list'),
@@ -11,4 +11,7 @@ urlpatterns = [
     
     # Ścieżka do aktualizacji meczów
     path('trigger-fetch/', trigger_fetch, name='trigger_fetch'), 
+    
+    # Ścieżka do czatu (poprawiony url, bez dublowania 'api/')
+    path('matches/<int:match_id>/chat/', MatchChatView.as_view(), name='match-chat'),
 ]
