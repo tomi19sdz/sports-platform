@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface Video {
   id: number;
@@ -33,8 +33,30 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Stany dla Czatu
-  const [chatMessages, setChatMessages] = useState<{id: number, text: string}[]>([]);
+  const [chatMessages, setChatMessages] = useState<{id: number, text: string, author: string}[]>([]);
   const [chatInput, setChatInput] = useState('');
+  const [nickname, setNickname] = useState('');
+
+  // --- ZAPIS GLOBALNY: Pobieranie wiadomości z Django ---
+  const fetchChatMessages = async () => {
+    try {
+      const res = await fetch(`https://tomi19sdz.pythonanywhere.com/api/matches/${matchId}/chat/`);
+      if (res.ok) {
+        const data = await res.json();
+        setChatMessages(data);
+      }
+    } catch (error) {
+      console.error('Błąd pobierania czatu:', error);
+    }
+  };
+
+  // Uruchom pobieranie czatu przy załadowaniu oraz odświeżaj co 3 sekundy (Live Chat)
+  useEffect(() => {
+    fetchChatMessages();
+    const interval = setInterval(fetchChatMessages, 3000);
+    return () => clearInterval(interval);
+  }, [matchId]);
+
 
   const submitAnalysis = async () => {
     if (!analysisText.trim()) return;
@@ -60,16 +82,30 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
     }
   };
 
-  const sendChatMessage = () => {
+  // --- ZAPIS GLOBALNY: Wysyłanie wiadomości do Django ---
+  const sendChatMessage = async () => {
     if (!chatInput.trim()) return;
     
-    const newMessage = {
-      id: Date.now(),
-      text: chatInput
-    };
+    const currentNickname = nickname.trim() !== '' ? nickname.trim() : 'Anonim';
+    const textToSend = chatInput;
     
-    setChatMessages([...chatMessages, newMessage]);
+    // Natychmiastowo czyścimy pole tekstowe po kliknięciu
     setChatInput('');
+    
+    try {
+      const res = await fetch(`https://tomi19sdz.pythonanywhere.com/api/matches/${matchId}/chat/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ author: currentNickname, text: textToSend }),
+      });
+
+      if (res.ok) {
+        // Po udanym wysłaniu od razu pobieramy odświeżoną listę z serwera
+        fetchChatMessages();
+      }
+    } catch (error) {
+      console.error('Błąd wysyłania wiadomości:', error);
+    }
   };
 
   return (
@@ -93,28 +129,38 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
                 </div>
               ) : (
                 chatMessages.map((msg) => (
-                  <div key={msg.id} className="bg-emerald-600/20 border border-emerald-500/30 p-3 rounded-2xl rounded-tr-none max-w-[80%] ml-auto">
+                  <div key={msg.id} className="bg-emerald-600/20 border border-emerald-500/30 p-3 rounded-2xl rounded-tr-none max-w-[80%] ml-auto flex flex-col">
+                    <span className="text-xs text-emerald-400 font-bold mb-1">{msg.author}</span>
                     <p className="text-slate-100">{msg.text}</p>
                   </div>
                 ))
               )}
             </div>
             
-            <div className="flex space-x-3 mt-auto">
+            <div className="flex flex-col space-y-3 mt-auto">
               <input 
                 type="text" 
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
-                placeholder="Napisz wiadomość na czacie..." 
-                className="flex-1 bg-slate-900 border border-slate-700 rounded-xl p-4 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                placeholder="Twój nick (opcjonalnie)" 
+                className="w-1/2 md:w-1/3 bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-emerald-500 transition-colors"
               />
-              <button 
-                onClick={sendChatMessage}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-[0_0_15px_rgba(0,223,129,0.2)]"
-              >
-                Wyślij
-              </button>
+              <div className="flex space-x-3">
+                <input 
+                  type="text" 
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
+                  placeholder="Napisz wiadomość na czacie..." 
+                  className="flex-1 bg-slate-900 border border-slate-700 rounded-xl p-4 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                />
+                <button 
+                  onClick={sendChatMessage}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-[0_0_15px_rgba(0,223,129,0.2)]"
+                >
+                  Wyślij
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -145,7 +191,6 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
             </div>
             <div>
               <h3 className="text-xl font-bold mb-4">Dodane analizy:</h3>
-              {/* Tutaj znajduje się naprawa formatowania tekstu: klasa whitespace-pre-wrap */}
               {localAnalyses.map((a) => (
                 <div key={a.id} className="bg-slate-800/50 p-4 rounded-lg mb-4 whitespace-pre-wrap">{a.content}</div>
               ))}
