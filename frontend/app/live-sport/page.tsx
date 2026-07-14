@@ -1,8 +1,16 @@
 import React from 'react';
+import Link from 'next/link';
 
 export default function LiveSportPage() {
   return (
     <div className="min-h-screen bg-[#0a0f1d] flex flex-col items-center py-10 px-4">
+      {/* Przycisk Wróć */}
+      <div className="w-full max-w-5xl mb-4">
+        <Link href="/" className="inline-flex items-center text-emerald-500 hover:text-emerald-400 font-bold transition-colors">
+          <span className="mr-2">←</span> Wróć
+        </Link>
+      </div>
+
       {/* Nagłówek strony */}
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-white mb-2">
