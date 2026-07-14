@@ -6,7 +6,7 @@ class Match(models.Model):
     home_logo = models.URLField(null=True, blank=True)
     away_logo = models.URLField(null=True, blank=True)
     match_date = models.DateTimeField()
-    
+
     # Pola na wynik
     home_score = models.IntegerField(null=True, blank=True)
     away_score = models.IntegerField(null=True, blank=True)
@@ -14,6 +14,7 @@ class Match(models.Model):
 
     def __str__(self):
         return f"{self.home_team} vs {self.away_team}"
+
 
 # Twoje przywrócone wideo
 class Video(models.Model):
