@@ -18,7 +18,8 @@ class MatchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Match
-        fields = ['id', 'home_team', 'away_team', 'match_date', 'home_logo', 'away_logo', 'videos', 'analyses']
+        # TUTAJ DODANE NOWE POLA NA KOŃCU LISTY:
+        fields = ['id', 'home_team', 'away_team', 'match_date', 'home_logo', 'away_logo', 'videos', 'analyses', 'home_score', 'away_score', 'status']
 
     # 2. NOWA FUNKCJA NA SAMYM DOLE (pamiętaj o wcięciach!):
     def get_analyses(self, obj):

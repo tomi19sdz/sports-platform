@@ -7,13 +7,22 @@ class Match(models.Model):
     away_logo = models.URLField(null=True, blank=True)
     match_date = models.DateTimeField()
     
-    # Nowe pola na wynik
+    # Pola na wynik
     home_score = models.IntegerField(null=True, blank=True)
     away_score = models.IntegerField(null=True, blank=True)
     status = models.CharField(max_length=20, default='SCHEDULED')
 
     def __str__(self):
         return f"{self.home_team} vs {self.away_team}"
+
+# Twoje przywrócone wideo
+class Video(models.Model):
+    title = models.CharField(max_length=200, null=True, blank=True)
+    url = models.URLField()
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='videos', null=True, blank=True)
+
+    def __str__(self):
+        return self.title if self.title else "Wideo"
 
 class Analysis(models.Model):
     match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='analyses')
