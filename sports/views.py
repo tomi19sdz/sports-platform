@@ -5,12 +5,12 @@ from collections import defaultdict
 from django.utils.dateparse import parse_datetime
 from django.http import HttpResponse
 from rest_framework.generics import ListAPIView, RetrieveAPIView
-from rest_framework.views import APIView # NOWY IMPORT
+from rest_framework.views import APIView 
 from rest_framework.response import Response
-from rest_framework import status # NOWY IMPORT
+from rest_framework import status 
 
-# Zaktualizowany import - dodano Analysis
-from .models import Match, Analysis
+# Zaktualizowany import - dodano Analysis oraz ChatMessage
+from .models import Match, Analysis, ChatMessage
 from .serializers import MatchSerializer
 
 class MatchListView(ListAPIView):
@@ -34,17 +34,15 @@ class MatchDetailView(RetrieveAPIView):
     serializer_class = MatchSerializer
 
 # ==========================================
-# WIDOK DO DODAWANIA ANALIZ (NOWE)
+# WIDOK DO DODAWANIA ANALIZ
 # ==========================================
 class AddAnalysisView(APIView):
     def post(self, request, match_id):
-        # 1. Odbieramy treść wpisaną przez użytkownika
         content = request.data.get('content')
         
         if not content:
             return Response({"error": "Treść analizy nie może być pusta."}, status=status.HTTP_400_BAD_REQUEST)
         
-        # 2. Szukamy odpowiedniego meczu i przypisujemy do niego analizę
         try:
             match = Match.objects.get(id=match_id)
             Analysis.objects.create(match=match, content=content)
@@ -53,15 +51,45 @@ class AddAnalysisView(APIView):
             return Response({"error": "Podany mecz nie istnieje."}, status=status.HTTP_404_NOT_FOUND)
 
 # ==========================================
+# WIDOK DO CZATU GLOBALNEGO (NOWE)
+# ==========================================
+class MatchChatView(APIView):
+    def get(self, request, match_id):
+        messages = ChatMessage.objects.filter(match_id=match_id).order_by('created_at')
+        data = [
+            {"id": msg.id, "author": msg.author, "text": msg.text} 
+            for msg in messages
+        ]
+        return Response(data)
+
+    def post(self, request, match_id):
+        try:
+            match = Match.objects.get(id=match_id)
+        except Match.DoesNotExist:
+            return Response({"error": "Mecz nie istnieje."}, status=status.HTTP_404_NOT_FOUND)
+        
+        author = request.data.get('author', 'Anonim')
+        text = request.data.get('text')
+        
+        if not text:
+            return Response({"error": "Brak tekstu."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        new_message = ChatMessage.objects.create(match=match, author=author, text=text)
+        
+        return Response({
+            "id": new_message.id, 
+            "author": new_message.author, 
+            "text": new_message.text
+        }, status=status.HTTP_201_CREATED)
+
+# ==========================================
 # FUNKCJA DO AUTOMATYZACJI POBIERANIA (WEBHOOK)
 # ==========================================
 def trigger_fetch(request):
-    # 1. Weryfikacja hasła
     token = request.GET.get('token')
     if token != 'moje-tajne-haslo-123':
         return HttpResponse("Brak dostępu", status=403)
     
-    # 2. Twoja logika pobierająca
     headers = { 'X-Auth-Token': 'c92a85877e2c4319aea223d3543532f8' }
     
     dzisiaj = date.today()
@@ -108,7 +136,6 @@ def trigger_fetch(request):
                     else:
                         zaktualizowano += 1
                         
-            # Zwracamy podsumowanie na ekran (zamiast do konsoli)
             return HttpResponse(
                 f"Sukces! Sprawdzono: {date_from} do {date_to}. "
                 f"Dodano {dodano} nowych, zaktualizowano {zaktualizowano} istniejących."
