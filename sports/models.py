@@ -18,7 +18,7 @@ class Match(models.Model):
 # Twoje przywrócone wideo
 class Video(models.Model):
     title = models.CharField(max_length=200, null=True, blank=True)
-    url = models.URLField()
+    video_url = models.URLField()
     match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='videos', null=True, blank=True)
 
     def __str__(self):

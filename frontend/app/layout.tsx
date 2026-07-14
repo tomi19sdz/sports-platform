@@ -1,20 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Sports Platform',
-  description: 'Najlepsza platforma do analiz i wyników meczów',
+  title: "Sports Platform",
+  description: "Nadchodzące spotkania, wyniki na żywo i analizy",
 };
 
 export default function RootLayout({
@@ -23,11 +15,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="pl">
+      <head>
+        {/* DOKŁADNIE TWÓJ KOD ADSENSE */}
+        <script 
+          async 
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1288941577582966" 
+          crossOrigin="anonymous"
+        ></script>
+      </head>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }
