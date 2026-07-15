@@ -19,10 +19,48 @@ interface MatchTabsProps {
   analyses: Analysis[];
 }
 
-const getYouTubeId = (url: string) => {
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : null;
+// --- ZMIANA: Uniwersalna funkcja do rozpoznawania i formatowania linków wideo ---
+const getEmbedUrl = (url: string): string | null => {
+  if (!url) return null;
+
+  // 1. YouTube (zwykłe, Shorts, youtu.be)
+  if (url.includes('youtube.com') || url.includes('youtu.be')) {
+    let videoId = '';
+    if (url.includes('/shorts/')) {
+      videoId = url.split('/shorts/')[1]?.split('?')[0];
+    } else if (url.includes('watch?v=')) {
+      videoId = url.split('v=')[1]?.split('&')[0];
+    } else if (url.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1]?.split('?')[0];
+    }
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+  }
+
+  // 2. TikTok
+  if (url.includes('tiktok.com')) {
+    const match = url.match(/\/video\/(\d+)/);
+    if (match && match[1]) {
+      return `https://www.tiktok.com/embed/v2/${match[1]}`;
+    }
+  }
+
+  // 3. Instagram (Reels, Posty wideo)
+  if (url.includes('instagram.com')) {
+    if (url.includes('/reel/') || url.includes('/p/')) {
+      const baseUrl = url.split('?')[0];
+      const cleanUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+      return `${cleanUrl}embed`;
+    }
+  }
+
+  // 4. Facebook
+  if (url.includes('facebook.com') || url.includes('fb.watch')) {
+    const encodedUrl = encodeURIComponent(url);
+    return `https://www.facebook.com/plugins/video.php?href=${encodedUrl}&show_text=false&width=auto`;
+  }
+
+  // Jeśli link jest już w formie embed lub pochodzi z innej strony, próbujemy wyświetlić go bezpośrednio
+  return url;
 };
 
 export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }: MatchTabsProps) {
@@ -110,10 +148,10 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
 
   return (
     <>
-      <div className="flex border-b border-slate-800 mb-8">
-        <button onClick={() => setActiveTab('chat')} className={`py-3 px-8 font-bold text-lg border-b-2 transition-colors ${activeTab === 'chat' ? 'border-emerald-500 text-emerald-500' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Czat</button>
-        <button onClick={() => setActiveTab('video')} className={`py-3 px-8 font-bold text-lg border-b-2 transition-colors ${activeTab === 'video' ? 'border-emerald-500 text-emerald-500' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Wideo</button>
-        <button onClick={() => setActiveTab('analysis')} className={`py-3 px-8 font-bold text-lg border-b-2 transition-colors ${activeTab === 'analysis' ? 'border-emerald-500 text-emerald-500' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Analizy</button>
+      <div className="flex border-b border-slate-800 mb-8 overflow-x-auto">
+        <button onClick={() => setActiveTab('chat')} className={`py-3 px-8 font-bold text-lg border-b-2 transition-colors whitespace-nowrap ${activeTab === 'chat' ? 'border-emerald-500 text-emerald-500' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Czat</button>
+        <button onClick={() => setActiveTab('video')} className={`py-3 px-8 font-bold text-lg border-b-2 transition-colors whitespace-nowrap ${activeTab === 'video' ? 'border-emerald-500 text-emerald-500' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Wideo</button>
+        <button onClick={() => setActiveTab('analysis')} className={`py-3 px-8 font-bold text-lg border-b-2 transition-colors whitespace-nowrap ${activeTab === 'analysis' ? 'border-emerald-500 text-emerald-500' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Analizy</button>
       </div>
       
       <div className="bg-slate-950/50 rounded-2xl min-h-[400px] p-6 border border-slate-800/50 flex flex-col w-full text-slate-200">
@@ -156,7 +194,7 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
                 />
                 <button 
                   onClick={sendChatMessage}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-[0_0_15px_rgba(0,223,129,0.2)]"
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 md:px-8 rounded-xl transition-all shadow-[0_0_15px_rgba(0,223,129,0.2)]"
                 >
                   Wyślij
                 </button>
@@ -169,10 +207,17 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
         {activeTab === 'video' && (
           <div className="w-full h-full flex flex-col items-center justify-center">
             {videos && videos.length > 0 ? videos.map((v) => {
-              const id = getYouTubeId(v.video_url);
-              return id ? (
-                <div key={v.id} className="w-full max-w-4xl aspect-video rounded-xl overflow-hidden mb-6">
-                  <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${id}`} allowFullScreen></iframe>
+              const embedUrl = getEmbedUrl(v.video_url);
+              return embedUrl ? (
+                <div key={v.id} className="w-full max-w-4xl aspect-video rounded-xl overflow-hidden mb-8 bg-slate-900 flex items-center justify-center">
+                  <iframe 
+                    width="100%" 
+                    height="100%" 
+                    src={embedUrl} 
+                    className="border-0"
+                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                    allowFullScreen
+                  ></iframe>
                 </div>
               ) : null;
             }) : <div className="text-slate-500">Brak wideo.</div>}
@@ -198,7 +243,6 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
               </button>
             </div>
             
-            {/* Tutaj wykorzystujemy Twój nowy komponent z odstępami */}
             <div className="space-y-6">
               <h3 className="text-xl font-bold">Dodane analizy:</h3>
               {localAnalyses.map((a) => (
