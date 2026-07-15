@@ -1,4 +1,15 @@
+import os
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from dotenv import load_dotenv
+from openai import OpenAI
+
+# 1. Ładujemy klucz z pliku .env w bezpieczny sposób
+load_dotenv()
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# --- TWOJE BAZOWE MODELE ---
 
 class Match(models.Model):
     home_team = models.CharField(max_length=200)
@@ -15,8 +26,6 @@ class Match(models.Model):
     def __str__(self):
         return f"{self.home_team} vs {self.away_team}"
 
-
-# Twoje przywrócone wideo
 class Video(models.Model):
     title = models.CharField(max_length=200, null=True, blank=True)
     video_url = models.URLField()
@@ -36,3 +45,31 @@ class ChatMessage(models.Model):
     author = models.CharField(max_length=100)
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+# --- INTELIGENTNY ROBOT DO ANALIZ (Sygnał post_save) ---
+
+@receiver(post_save, sender=Match)
+def create_ai_analysis(sender, instance, created, **kwargs):
+    # Uruchom tylko dla nowo utworzonych meczów, które nie mają jeszcze analizy
+    if created and not instance.analyses.exists():
+        try:
+            prompt = f"""Jako ekspert sportowy napisz 10 zdań analizy przedmeczowej o spotkaniu {instance.home_team} kontra {instance.away_team}. 
+            Uwzględnij ich aktualną formę, potencjalne kontuzje i statystyki z tego sezonu.
+            Tekst ma być rzeczowy, ekspercki i podzielony na przejrzyste akapity."""
+            
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "Jesteś cenionym ekspertem piłkarskim. Unikaj banałów."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=400,
+                temperature=0.7
+            )
+            
+            ai_content = response.choices[0].message.content.strip()
+            Analysis.objects.create(match=instance, content=ai_content)
+            
+        except Exception as e:
+            # Rejestruje błąd w konsoli serwera w razie problemów z API
+            print(f"Błąd generatora AI: {e}")
