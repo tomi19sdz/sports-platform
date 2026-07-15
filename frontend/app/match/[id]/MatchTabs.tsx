@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import AnalysisItem from '@/components/AnalysisItem';
 
 interface Video {
   id: number;
@@ -56,7 +57,6 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
     const interval = setInterval(fetchChatMessages, 3000);
     return () => clearInterval(interval);
   }, [matchId]);
-
 
   const submitAnalysis = async () => {
     if (!analysisText.trim()) return;
@@ -171,7 +171,9 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
             {videos && videos.length > 0 ? videos.map((v) => {
               const id = getYouTubeId(v.video_url);
               return id ? (
-                <div key={v.id} className="w-full max-w-4xl aspect-video rounded-xl overflow-hidden mb-6"><iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${id}`} allowFullScreen></iframe></div>
+                <div key={v.id} className="w-full max-w-4xl aspect-video rounded-xl overflow-hidden mb-6">
+                  <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${id}`} allowFullScreen></iframe>
+                </div>
               ) : null;
             }) : <div className="text-slate-500">Brak wideo.</div>}
           </div>
@@ -187,12 +189,20 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
                 value={analysisText} 
                 onChange={(e) => setAnalysisText(e.target.value)} 
               />
-              <button onClick={submitAnalysis} disabled={isSubmitting} className="mt-3 bg-emerald-600 text-white font-bold py-2 px-6 rounded-lg">Wyślij</button>
+              <button 
+                onClick={submitAnalysis} 
+                disabled={isSubmitting} 
+                className="mt-3 bg-emerald-600 text-white font-bold py-2 px-6 rounded-lg"
+              >
+                Wyślij
+              </button>
             </div>
-            <div>
-              <h3 className="text-xl font-bold mb-4">Dodane analizy:</h3>
+            
+            {/* Tutaj wykorzystujemy Twój nowy komponent z odstępami */}
+            <div className="space-y-6">
+              <h3 className="text-xl font-bold">Dodane analizy:</h3>
               {localAnalyses.map((a) => (
-                <div key={a.id} className="bg-slate-800/50 p-4 rounded-lg mb-4 whitespace-pre-wrap">{a.content}</div>
+                <AnalysisItem key={a.id} text={a.content} />
               ))}
             </div>
           </div>
