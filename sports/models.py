@@ -5,8 +5,11 @@ from django.dispatch import receiver
 from dotenv import load_dotenv
 from openai import OpenAI
 
-# 1. Ładujemy klucz z pliku .env w bezpieczny sposób
-load_dotenv()
+# --- ŁADOWANIE KLUCZA ---
+# Zadziała i na Twoim komputerze, i na serwerze PythonAnywhere
+load_dotenv() 
+load_dotenv('/home/tomi19sdz/sports-platform/.env') 
+
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # --- TWOJE BAZOWE MODELE ---
@@ -25,6 +28,7 @@ class Match(models.Model):
 
     def __str__(self):
         return f"{self.home_team} vs {self.away_team}"
+
 
 class Video(models.Model):
     title = models.CharField(max_length=200, null=True, blank=True)
