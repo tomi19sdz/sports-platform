@@ -29,7 +29,6 @@ class Match(models.Model):
     def __str__(self):
         return f"{self.home_team} vs {self.away_team}"
 
-
 class Video(models.Model):
     title = models.CharField(max_length=200, null=True, blank=True)
     video_url = models.URLField()
@@ -57,9 +56,10 @@ def create_ai_analysis(sender, instance, created, **kwargs):
     # Uruchom tylko dla nowo utworzonych meczów, które nie mają jeszcze analizy
     if created and not instance.analyses.exists():
         try:
-            prompt = f"""Jako ekspert sportowy napisz 10 zdań analizy przedmeczowej o spotkaniu {instance.home_team} kontra {instance.away_team}. 
-            Uwzględnij ich aktualną formę, potencjalne kontuzje i statystyki z tego sezonu. Przewidywany wynik spotkania.
-            Tekst ma być rzeczowy, ekspercki i podzielony na przejrzyste akapity."""
+            prompt = f"""Jako ekspert sportowy napisz wyczerpującą, szczegółową analizę przedmeczową o spotkaniu {instance.home_team} kontra {instance.away_team}. 
+            Uwzględnij ich aktualną formę, potencjalne kontuzje i statystyki z tego sezonu. Podaj przewidywany wynik spotkania.
+            Tekst ma być rzeczowy, ekspercki i podzielony na przejrzyste akapity.
+            WAŻNE: Dopilnuj, aby tekst był logicznie kompletny, posiadał wyraźne podsumowanie na końcu i pod żadnym pozorem nie urywał się w połowie zdania. Zmieść się w przedziale 300-400 słów."""
             
             response = client.chat.completions.create(
                 model="gpt-4o-mini",
@@ -67,7 +67,7 @@ def create_ai_analysis(sender, instance, created, **kwargs):
                     {"role": "system", "content": "Jesteś cenionym ekspertem piłkarskim. Unikaj banałów."},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=1200,
+                max_tokens=2500,
                 temperature=0.7
             )
             
