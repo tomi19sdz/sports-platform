@@ -58,7 +58,7 @@ def create_ai_analysis(sender, instance, created, **kwargs):
     if created and not instance.analyses.exists():
         try:
             prompt = f"""Jako ekspert sportowy napisz 10 zdań analizy przedmeczowej o spotkaniu {instance.home_team} kontra {instance.away_team}. 
-            Uwzględnij ich aktualną formę, potencjalne kontuzje i statystyki z tego sezonu.
+            Uwzględnij ich aktualną formę, potencjalne kontuzje i statystyki z tego sezonu. Przewidywany wynik spotkania.
             Tekst ma być rzeczowy, ekspercki i podzielony na przejrzyste akapity."""
             
             response = client.chat.completions.create(
@@ -67,7 +67,7 @@ def create_ai_analysis(sender, instance, created, **kwargs):
                     {"role": "system", "content": "Jesteś cenionym ekspertem piłkarskim. Unikaj banałów."},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=400,
+                max_tokens=1200,
                 temperature=0.7
             )
             
