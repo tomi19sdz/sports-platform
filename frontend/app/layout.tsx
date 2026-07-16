@@ -19,11 +19,8 @@ export default function RootLayout({
     <html lang="pl">
       <head>
         {/* DOKŁADNIE TWÓJ KOD ADSENSE */}
-        <script 
-          async 
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1288941577582966" 
-          crossOrigin="anonymous"
-        ></script>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1288941577582966"
+     crossOrigin="anonymous"></script>
       </head>
       <body className={`${inter.className} flex flex-col min-h-screen`}>
         <div className="flex-grow">
