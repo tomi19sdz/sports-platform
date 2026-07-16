@@ -18,9 +18,11 @@ export default function RootLayout({
   return (
     <html lang="pl">
       <head>
-        {/* DOKŁADNIE TWÓJ KOD ADSENSE */}
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1288941577582966"
-     crossOrigin="anonymous"></script>
+        {/* Tag weryfikacyjny Google AdSense (Metatag) */}
+        <meta name="google-adsense-account" content="ca-pub-1288941577582966" />
+        
+        {/* Skrypt pobierający reklamy AdSense */}
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1288941577582966" crossOrigin="anonymous"></script>
       </head>
       <body className={`${inter.className} flex flex-col min-h-screen`}>
         <div className="flex-grow">
