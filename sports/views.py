@@ -3,7 +3,7 @@ from .utils import wygeneruj_analize_ai
 from datetime import date, timedelta
 from collections import defaultdict
 from django.utils.dateparse import parse_datetime
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse  # <-- Tutaj dodałem JsonResponse
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -50,13 +50,13 @@ class MatchChatView(APIView):
             match = Match.objects.get(id=match_id)
         except Match.DoesNotExist:
             return Response({"error": "Mecz nie istnieje."}, status=status.HTTP_404_NOT_FOUND)
-        
+
         author = request.data.get('author', 'Anonim')
         text = request.data.get('text')
-        
+
         if not text:
             return Response({"error": "Brak tekstu."}, status=status.HTTP_400_BAD_REQUEST)
-            
+
         new_message = ChatMessage.objects.create(match=match, author=author, text=text)
         return Response({"id": new_message.id, "author": new_message.author, "text": new_message.text}, status=status.HTTP_201_CREATED)
 
@@ -108,3 +108,23 @@ def trigger_fetch(request):
         return HttpResponse(f"Błąd API: {response.status_code}", status=500)
     except Exception as e:
         return HttpResponse(f"Wystąpił błąd: {e}", status=500)
+
+# --- NASZA NOWA FUNKCJA DO OBSŁUGI AI ---
+def api_generuj_analize(request):
+    """Odbiera zapytanie ze strony, odpala AI i zwraca gotowy tekst."""
+    mecz = request.GET.get('mecz')
+    
+    if not mecz:
+        return JsonResponse({'blad': 'Nie podano nazwy meczu.'}, status=400)
+        
+    try:
+        # Uruchamiamy nasz nowy silnik!
+        gotowa_analiza = wygeneruj_analize_ai(mecz)
+        
+        # Zwracamy sukces i tekst do przeglądarki/na stronę
+        return JsonResponse({
+            'mecz': mecz, 
+            'analiza': gotowa_analiza
+        })
+    except Exception as e:
+        return JsonResponse({'blad': f'Wystąpił błąd: {str(e)}'}, status=500)
