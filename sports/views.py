@@ -1,4 +1,5 @@
 import requests
+from .utils import wygeneruj_analize_ai
 from datetime import date, timedelta
 from collections import defaultdict
 from django.utils.dateparse import parse_datetime
