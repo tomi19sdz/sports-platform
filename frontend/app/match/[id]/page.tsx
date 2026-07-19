@@ -8,6 +8,7 @@ interface Match {
   id: number;
   home_team: string;
   away_team: string;
+  league: string; // <--- DODANO: To rozwiązuje błąd w interfejsie
   match_date: string;
   videos: Video[];
   analyses: Analysis[];
@@ -31,7 +32,13 @@ export default async function MatchPage({ params }: { params: Promise<{ id: stri
           <h1 className="text-4xl font-extrabold text-center mb-10">
             {match.home_team} <span className="text-emerald-500">VS</span> {match.away_team}
           </h1>
-          <MatchTabs matchId={match.id} videos={match.videos || []} analyses={match.analyses || []} />
+          {/* <--- DODANO: league={match.league} przekazuje dane do komponentu */}
+          <MatchTabs 
+            matchId={match.id} 
+            league={match.league} 
+            videos={match.videos || []} 
+            analyses={match.analyses || []} 
+          />
         </div>
       </div>
     </main>
