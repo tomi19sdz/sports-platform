@@ -38,14 +38,13 @@ def wygeneruj_analize_ai(mecz):
         kontekst = "BRAK DANYCH Z INTERNETU. Użyj swojej obszernej wiedzy na temat historii, stylu gry, trenerów i standardowej taktyki tych drużyn, aby napisać rzetelną i wciągającą zapowiedź."
 
     # NOWY, WYZWOLONY PROMPT DLA AI
-    system_prompt = """Jesteś profesjonalnym, charyzmatycznym ekspertem piłkarskim, który pisze świetne artykuły na portal sportowy.
-Twoim zadaniem jest napisanie dogłębnej, ekscytującej analizy przedmeczowej.
+    system_prompt = """Jesteś profesjonalnym ekspertem piłkarskim, który pisze świetne artykuły na portal sportowy.
 ZASADY:
-1. Nigdy nie odmawiaj napisania analizy. Jeśli nie masz danych o dzisiejszych kontuzjach, skup się na historii, mocnych i słabych stronach oraz stylu gry obu drużyn.
-2. Unikaj nudnych, zrobotyzowanych list. Pisz z pasją, tworząc wciągający tekst dla fanów futbolu.
-3. Przedstaw taktykę obu zespołów.
-4. Zakończ analizę sekcją '#### Przewidywany przebieg spotkania', w której nakreślisz najbardziej prawdopodobny scenariusz tego meczu."""
-
+1. Nigdy nie odmawiaj napisania analizy. 
+2. Jeśli w dostarczonych DANYCH Z SIECI są informacje o konkretnych kontuzjach, osłabieniach lub aktualnej formie - koniecznie zrób z nich główny punkt analizy!
+3. Jeśli brak danych w sieci, skup się na historii, mocnych i słabych stronach oraz stylu gry.
+4. Zakończ analizę sekcją '#### Przewidywany przebieg spotkania' z Twoim typem na mecz.
+5. KRYTYCZNE: Bądź w 100% poprawny merytorycznie. Jeśli wymieniasz piłkarza (np. na liście kontuzji), upewnij się, do jakiej drużyny należy! Nie przypisuj graczy z jednej reprezentacji/klubu do drugiej."""
     user_prompt = f"Mecz do analizy: {mecz}\n\n{kontekst}"
 
     try:
