@@ -17,7 +17,7 @@ def pobierz_swieze_dane(mecz):
     return dzisiejsze_fakty
 
 def wygeneruj_analize_ai(mecz):
-    """Tworzy analizę i samodzielnie wnioskuje datę zebranych informacji źródłowych."""
+    """Tworzy analizę: AI wnioskuje datę z artykułów, a Python wymusza jej wyświetlenie."""
     
     ukryty_klucz = os.environ.get("OPENAI_API_KEY", getattr(settings, "OPENAI_API_KEY", None))
     
@@ -27,34 +27,41 @@ def wygeneruj_analize_ai(mecz):
     klient = OpenAI(api_key=ukryty_klucz)
     
     swieze_dane = pobierz_swieze_dane(mecz)
-    
-    # Przekazujemy AI dzisiejszą datę, aby miało orientację w czasie
     dzisiejsza_data = date.today().strftime("%d.%m.%Y")
     
-    prompt = f"""
-    Jesteś profesjonalnym analitykiem sportowym dla portalu sportsplatform.pl. Dzisiejsza data to {dzisiejsza_data}.
-    Napisz profesjonalną analizę dla meczu: {mecz}.
-    
-    ZABRANIAM CI opierać się na swojej historycznej wiedzy.
-    Masz oprzeć się WYŁĄCZNIE na tych najświeższych informacjach pobranych z internetu:
-    
-    ### ŚWIEŻE DANE Z INTERNETU: ###
-    {swieze_dane}
-    #################################
-    
-    Na podstawie tych informacji, wymień krótko mocne i słabe strony z ostatnich dni i zaproponuj ostateczny typ.
-    
-    WYMÓG FORMALNY:
-    Na samej górze swojej odpowiedzi MUSISZ napisać pogrubioną czcionką, z jakich dni/dat pochodzą informacje umieszczone w artykułach. Przeanalizuj treść danych (np. jeśli mówią o kontuzji z 15 lipca lub meczu z zeszłej środy, wpisz tę datę). Jeśli artykuły nie precyzują konkretnych dat wydarzeń, napisz po prostu, że są to informacje zebrane w dniu {dzisiejsza_data}.
-    
-    Format, jakiego masz użyć na samym początku (zawsze podawaj jako pierwsza linijka):
-    **Analiza oparta na informacjach źródłowych z: [TUTAJ WPISZ WYWNIOSKOWANĄ DATĘ / OKRES]**
-    """
+    # SYSTEM PROMPT - Twarde zasady, których AI nie może złamać
+    system_prompt = """Jesteś profesjonalnym analitykiem sportowym. 
+ZASADA NR 1: W pierwszej linijce swojej odpowiedzi MUSISZ napisać TYLKO wywnioskowaną datę lub okres pochodzenia informacji (np. '15 lipca 2026' albo 'z ostatnich dni'). Nie pisz w pierwszej linijce niczego więcej!
+ZASADA NR 2: Dopiero od drugiej linijki zacznij pisać właściwą analizę z nagłówkami."""
+
+    # USER PROMPT - Konkretne zadanie
+    user_prompt = f"""Dzisiejsza data: {dzisiejsza_data}.
+Napisz analizę dla meczu: {mecz}. Opieraj się WYŁĄCZNIE na poniższych danych:
+
+### ŚWIEŻE DANE Z INTERNETU: ###
+{swieze_dane}
+#################################
+
+Pamiętaj o wymogach z ZASADY NR 1 i ZASADY NR 2!"""
 
     odpowiedz = klient.chat.completions.create(
         model="gpt-4o-mini", 
-        messages=[{"role": "user", "content": prompt}],
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ],
         temperature=0.3
     )
     
-    return odpowiedz.choices[0].message.content
+    surowy_tekst = odpowiedz.choices[0].message.content.strip()
+    
+    # Python rozdziela odpowiedź AI na pierwszą linijkę (datę) i resztę (analizę)
+    podzial = surowy_tekst.split('\n', 1)
+    
+    wywnioskowana_data = podzial[0].strip().replace('**', '') # Czyścimy datę
+    reszta_analizy = podzial[1].strip() if len(podzial) > 1 else ""
+    
+    # Składamy wszystko w nierozerwalną całość z wymuszonym pogrubieniem
+    ostateczny_tekst = f"**Analiza oparta na informacjach źródłowych z: {wywnioskowana_data}**\n\n{reszta_analizy}"
+    
+    return ostateczny_tekst
