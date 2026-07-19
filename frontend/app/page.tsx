@@ -69,8 +69,8 @@ export default async function HomePage() {
                     
                     {/* --- ZMIANA: LIGA NA LEWEJ STRONIE --- */}
                     {/* Na Desktopie pozycjonowana absolutnie po lewej, na Mobile ląduje u góry */}
-                    <div className="w-full sm:absolute sm:left-6 sm:top-1/2 sm:-translate-y-1/2 sm:w-[20%] text-center sm:text-left mb-4 sm:mb-0 pointer-events-none">
-                      <span className="text-[10px] sm:text-xs text-slate-500 group-hover:text-emerald-500/80 transition-colors font-bold uppercase tracking-widest block truncate" title={match.league}>
+                    <div className="w-full sm:absolute sm:left-6 sm:top-1/2 sm:-translate-y-1/2 sm:w-[20%] text-center sm:text-left mb-4 sm:mb-0 bg-red-500">
+                      <span className="text-[10px] sm:text-xs text-white font-bold uppercase tracking-widest block truncate">
                         {match.league}
                       </span>
                     </div>
