@@ -17,6 +17,7 @@ def pobierz_swieze_dane(mecz):
     return dzisiejsze_fakty
 
 def wygeneruj_analize_ai(mecz):
+    return "TEST - TO JEST TEN PLIK!"
     """Tworzy analizę: AI wnioskuje datę z artykułów, a Python wymusza jej wyświetlenie."""
     
     ukryty_klucz = os.environ.get("OPENAI_API_KEY", getattr(settings, "OPENAI_API_KEY", None))
