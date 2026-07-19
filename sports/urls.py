@@ -8,6 +8,6 @@ urlpatterns = [
     path('trigger-fetch/', trigger_fetch, name='trigger_fetch'), 
     path('matches/<int:match_id>/chat/', MatchChatView.as_view(), name='match-chat'),
     
-    # Nasza nowa ścieżka do generatora AI:
-    path('api/generuj-analize/', api_generuj_analize, name='api_generuj_analize'),
+    # Zmieniona ścieżka - usunęliśmy "api/" z początku:
+    path('generuj-analize/', api_generuj_analize, name='api_generuj_analize'),
 ]
