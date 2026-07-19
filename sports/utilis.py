@@ -11,7 +11,6 @@ def pobierz_swieze_dane(mecz):
     
     try:
         with DDGS() as ddgs:
-            # Pobieramy newsy z ostatnich dni w zasięgu globalnym
             wyniki = ddgs.news(zapytanie, region='wt-wt', max_results=5)
             for wynik in wyniki:
                 dane_lista.append(f"Źródło: {wynik.get('title', '')}. Treść: {wynik.get('body', '')}")
@@ -32,14 +31,12 @@ def wygeneruj_analize_ai(mecz):
     klient = OpenAI(api_key=ukryty_klucz)
     swieze_dane = pobierz_swieze_dane(mecz)
     
-    # Obsługa braku danych w sposób profesjonalny
     if swieze_dane == "BŁĄD_SIECI":
         return "Aktualnie nie możemy połączyć się ze źródłami sportowymi. Spróbuj później."
     
     if swieze_dane == "BRAK_DANYCH":
         return "Analiza jest w przygotowaniu. Nasz dział analiz przygotuje rzetelne zestawienie 2-4 godziny przed rozpoczęciem spotkania, gdy tylko pojawią się oficjalne składy i raporty meczowe."
 
-    # System prompt nastawiony na maksymalną rzetelność
     system_prompt = """Jesteś profesjonalnym analitykiem sportowym przygotowującym raport dla graczy.
 ZASADA: Analiza musi opierać się WYŁĄCZNIE na dostarczonych danych z sieci.
 1. Jeśli dane wspominają o kontuzjach – wymień je.
@@ -58,3 +55,16 @@ ZASADA: Analiza musi opierać się WYŁĄCZNIE na dostarczonych danych z sieci.
         return odpowiedz.choices[0].message.content.strip()
     except Exception:
         return "Wystąpił błąd podczas generowania analizy przez system AI."
+
+def aktualizuj_analize(stara_analiza, mecz):
+    """Nowa funkcja: bierze starą analizę i dopisuje nową pod spodem."""
+    nowa_analiza = wygeneruj_analize_ai(mecz)
+    
+    # Jeśli nowa analiza to tylko informacja o oczekiwaniu, nie nadpisujmy starej
+    if "Analiza jest w przygotowaniu" in nowa_analiza:
+        return stara_analiza
+        
+    data_aktualizacji = date.today().strftime("%d.%m.%Y %H:%M")
+    
+    # Łączymy stare z nowym
+    return f"{stara_analiza}\n\n--- AKTUALIZACJA ({data_aktualizacji}):\n{nowa_analiza}"
