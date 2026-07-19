@@ -32,10 +32,10 @@ def wygeneruj_analize_ai(mecz):
     swieze_dane = pobierz_swieze_dane(mecz)
     
     if swieze_dane == "BŁĄD_SIECI":
-        return "Aktualnie nie możemy połączyć się ze źródłami sportowymi. Spróbuj później."
+        return "Nasz dział analiz pracuje nad tą analizą. Zapraszamy 1-4 godziny przed meczem"
     
     if swieze_dane == "BRAK_DANYCH":
-        return "Analiza jest w przygotowaniu. Nasz dział analiz przygotuje rzetelne zestawienie 2-4 godziny przed rozpoczęciem spotkania, gdy tylko pojawią się oficjalne składy i raporty meczowe."
+        return "Analiza jest w przygotowaniu. Nasz dział analiz przygotuje rzetelne zestawienie 1-4 godziny przed rozpoczęciem spotkania, gdy tylko pojawią się oficjalne składy i raporty meczowe."
 
     system_prompt = """Jesteś profesjonalnym analitykiem sportowym przygotowującym raport dla graczy.
 ZASADA: Analiza musi opierać się WYŁĄCZNIE na dostarczonych danych z sieci.
