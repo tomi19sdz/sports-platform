@@ -5,6 +5,7 @@ interface Match {
   id: number;
   home_team: string;
   away_team: string;
+  league: string; // <-- Dodano
   home_logo: string | null;
   away_logo: string | null;
   match_date: string;
@@ -25,7 +26,7 @@ export default async function HistoryPage() {
   const groupedMatches = await getMatches();
   const todayStr = new Date().toISOString().split('T')[0];
   
-  // Filtrujemy TYLKO mecze zakończone/przeszłe (data mniejsza niż dzisiejsza)
+  // Filtrujemy TYLKO mecze zakończone/przeszłe
   const pastMatches = Object.entries(groupedMatches).filter(([date]) => date < todayStr);
   
   // Odwracamy kolejność, aby najświeższa historia była na samej górze
@@ -40,16 +41,12 @@ export default async function HistoryPage() {
           </h1>
           <p className="text-slate-400 text-lg mb-8">Archiwum zakończonych spotkań</p>
           
-          {/* Nawigacja / Zakładki (Odwrotne kolory) */}
           <div className="flex justify-center space-x-4">
             <Link href="/" className="px-6 py-2 bg-slate-800 text-slate-300 rounded-full font-bold hover:bg-slate-700 transition-colors">
               Nadchodzące
             </Link>
             <Link href="/history" className="px-6 py-2 bg-emerald-600 text-white rounded-full font-bold shadow-lg shadow-emerald-500/20">
               Historia
-            </Link>
-            <Link href="/live-sport" className="px-6 py-2 bg-slate-800 text-slate-300 rounded-full font-bold hover:bg-slate-700 transition-colors">
-              Live Sport
             </Link>
           </div>
         </header>
@@ -69,13 +66,21 @@ export default async function HistoryPage() {
               
               <div className="grid gap-4">
                 {matches.map((match) => (
-                  <Link key={match.id} href={`/match/${match.id}`} className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 hover:border-slate-500/50 hover:bg-slate-800/60 transition-all duration-300 flex flex-col sm:flex-row items-center justify-between group">
-                    <div className="flex items-center space-x-4 w-full sm:w-2/5 justify-end filter grayscale group-hover:grayscale-0 transition-all">
+                  <Link key={match.id} href={`/match/${match.id}`} className="relative bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 hover:border-slate-500/50 hover:bg-slate-800/60 transition-all duration-300 flex flex-col sm:flex-row items-center justify-between group">
+                    
+                    {/* --- LIGA NA LEWEJ STRONIE --- */}
+                    <div className="w-full sm:absolute sm:left-6 sm:top-1/2 sm:-translate-y-1/2 sm:w-[20%] text-center sm:text-left mb-4 sm:mb-0">
+                      <span className="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-widest block truncate">
+                        {match.league}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center space-x-4 w-full sm:w-2/5 justify-end filter grayscale group-hover:grayscale-0 transition-all z-10">
                       <span className="font-bold text-lg text-right">{match.home_team}</span>
                       {match.home_logo ? <img src={match.home_logo} alt={match.home_team} className="w-12 h-12 object-contain" /> : <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-xs text-slate-500">Brak</div>}
                     </div>
                     
-                    <div className="flex flex-col items-center justify-center px-4 w-full sm:w-1/5 my-4 sm:my-0">
+                    <div className="flex flex-col items-center justify-center px-4 w-full sm:w-1/5 my-4 sm:my-0 z-10">
                       {['FINISHED', 'IN_PLAY', 'PAUSED'].includes(match.status) ? (
                         <span className="bg-slate-800 px-4 py-1.5 rounded-xl text-slate-300 font-black tracking-widest text-lg border border-slate-700">
                           {match.home_score ?? 0} : {match.away_score ?? 0}
@@ -85,7 +90,7 @@ export default async function HistoryPage() {
                       )}
                     </div>
 
-                    <div className="flex items-center space-x-4 w-full sm:w-2/5 justify-start filter grayscale group-hover:grayscale-0 transition-all">
+                    <div className="flex items-center space-x-4 w-full sm:w-2/5 justify-start filter grayscale group-hover:grayscale-0 transition-all z-10">
                       {match.away_logo ? <img src={match.away_logo} alt={match.away_team} className="w-12 h-12 object-contain" /> : <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-xs text-slate-500">Brak</div>}
                       <span className="font-bold text-lg text-left">{match.away_team}</span>
                     </div>
