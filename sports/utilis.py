@@ -5,63 +5,70 @@ from duckduckgo_search import DDGS
 from openai import OpenAI
 
 def pobierz_swieze_dane(mecz):
-    """Szuka faktów przy użyciu bardziej stabilnej metody text()."""
-    zapytanie = f"{mecz} match preview stats injuries lineup 2026"
+    """Próbuje pobrać dane z DDG. W razie blokady serwera zwraca None zamiast ubijać analizę."""
+    # Prostsze zapytanie daje lepsze rezultaty w DDG
+    zapytanie = f"{mecz} zapowiedź meczu OR kontuzje OR form"
     try:
-        with DDGS(timeout=30) as ddgs:
-            # Używamy metody text(), która jest stabilniejsza na serwerach
+        # Zmniejszamy timeout do 10, by strona nie ładowała się w nieskończoność przy blokadzie
+        with DDGS(timeout=10) as ddgs:
             wyniki = [r for r in ddgs.text(zapytanie, max_results=3)]
         
         if not wyniki:
-            return "BRAK_DANYCH"
+            return None
             
-        return "\n".join([f"{r.get('title', '')}: {r.get('body', '')}" for r in wyniki])
-    except Exception:
-        return "BŁĄD_SIECI"
+        return "\n".join([f"- {r.get('body', '')}" for r in wyniki])
+    except Exception as e:
+        # Print w konsoli pomoże Ci sprawdzić, czy PythonAnywhere blokuje ruch
+        print(f"Blokada DDG lub błąd sieci: {e}")
+        return None
 
 def wygeneruj_analize_ai(mecz):
-    """Generuje profesjonalną analizę lub informuje o oczekiwaniu na dane."""
+    """Generuje niesamowitą analizę, elastycznie dostosowując się do dostępnych danych."""
     ukryty_klucz = os.environ.get("OPENAI_API_KEY", getattr(settings, "OPENAI_API_KEY", None))
     if not ukryty_klucz: 
-        return "Błąd konfiguracji serwera."
+        return "Błąd konfiguracji serwera: Brak klucza OpenAI."
 
     klient = OpenAI(api_key=ukryty_klucz)
     swieze_dane = pobierz_swieze_dane(mecz)
     
-    if swieze_dane == "BŁĄD_SIECI":
-        return "Nasz dział analiz pracuje nad tą analizą. Zapraszamy 1-4 godziny przed meczem"
-    
-    if swieze_dane == "BRAK_DANYCH":
-        return "Analiza jest w przygotowaniu. Nasz dział analiz przygotuje rzetelne zestawienie 1-4 godziny przed rozpoczęciem spotkania, gdy tylko pojawią się oficjalne składy i raporty meczowe."
+    # ELASTYCZNY KONTEKST:
+    if swieze_dane:
+        kontekst = f"DANE Z SIECI (najnowsze informacje o kontuzjach/formie):\n{swieze_dane}\n\nWpleć te informacje w swoją analizę i opisz aktualną formę."
+    else:
+        kontekst = "BRAK DANYCH Z INTERNETU. Użyj swojej obszernej wiedzy na temat historii, stylu gry, trenerów i standardowej taktyki tych drużyn, aby napisać rzetelną i wciągającą zapowiedź."
 
-    system_prompt = """Jesteś profesjonalnym analitykiem sportowym przygotowującym raport dla graczy.
-ZASADA: Analiza musi opierać się WYŁĄCZNIE na dostarczonych danych z sieci.
-1. Jeśli dane wspominają o kontuzjach – wymień je.
-2. Jeśli dane mówią o taktyce – opisz ją.
-3. Jeśli danych o jakimś aspekcie (np. kontuzje) nie ma – pomiń ten punkt, nie zmyślaj.
-4. Podsumuj dane w sekcji '#### Przewidywany wynik', uzasadniając typ statystykami z dostarczonych źródeł."""
+    # NOWY, WYZWOLONY PROMPT DLA AI
+    system_prompt = """Jesteś profesjonalnym, charyzmatycznym ekspertem piłkarskim, który pisze świetne artykuły na portal sportowy.
+Twoim zadaniem jest napisanie dogłębnej, ekscytującej analizy przedmeczowej.
+ZASADY:
+1. Nigdy nie odmawiaj napisania analizy. Jeśli nie masz danych o dzisiejszych kontuzjach, skup się na historii, mocnych i słabych stronach oraz stylu gry obu drużyn.
+2. Unikaj nudnych, zrobotyzowanych list. Pisz z pasją, tworząc wciągający tekst dla fanów futbolu.
+3. Przedstaw taktykę obu zespołów.
+4. Zakończ analizę sekcją '#### Przewidywany przebieg spotkania', w której nakreślisz najbardziej prawdopodobny scenariusz tego meczu."""
 
-    user_prompt = f"Analiza dla: {mecz}. DANE Z SIECI: {swieze_dane}"
+    user_prompt = f"Mecz do analizy: {mecz}\n\n{kontekst}"
 
     try:
         odpowiedz = klient.chat.completions.create(
             model="gpt-4o-mini", 
             messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}],
-            temperature=0.1
+            temperature=0.6  # Zwiększyliśmy temperaturę! AI będzie teraz bardziej kreatywne i naturalne, a nie sztywne.
         )
         return odpowiedz.choices[0].message.content.strip()
-    except Exception:
-        return "Wystąpił błąd podczas generowania analizy przez system AI."
+    except Exception as e:
+        return f"Wystąpił błąd komunikacji z modelem AI: {e}"
 
 def aktualizuj_analize(stara_analiza, mecz):
-    """Dokleja tylko rzetelne, nowe analizy. W przypadku błędów zostawia wszystko bez zmian."""
+    """Dokleja nową treść tylko, jeśli AI poprawnie ją wygenerowało."""
     nowa_tresc = wygeneruj_analize_ai(mecz)
     
-    # Warunki, w których nie dopisujemy błędu do analizy
-    if "Nasz dział analiz pracuje" in nowa_tresc or "Analiza jest w przygotowaniu" in nowa_tresc or "Wystąpił błąd" in nowa_tresc:
+    if "Wystąpił błąd komunikacji z modelem AI" in nowa_tresc or "Błąd konfiguracji" in nowa_tresc:
         return stara_analiza
         
     data_aktualizacji = date.today().strftime("%d.%m.%Y %H:%M")
     
-    # Łączymy stare z nowym tylko wtedy, gdy nowa treść jest wartościowa
+    # Jeśli stara analiza jest pusta, oddajemy od razu nową
+    if not stara_analiza or stara_analiza.strip() == "":
+        return nowa_tresc
+        
     return f"{stara_analiza}\n\n--- AKTUALIZACJA ({data_aktualizacji}):\n{nowa_tresc}"
