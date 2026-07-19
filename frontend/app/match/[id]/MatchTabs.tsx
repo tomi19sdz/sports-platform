@@ -15,15 +15,13 @@ interface Analysis {
 
 interface MatchTabsProps {
   matchId: number;
+  league: string;
   videos: Video[];
   analyses: Analysis[];
 }
 
-// --- ZMIANA: Uniwersalna funkcja do rozpoznawania i formatowania linków wideo ---
 const getEmbedUrl = (url: string): string | null => {
   if (!url) return null;
-
-  // 1. YouTube (zwykłe, Shorts, youtu.be)
   if (url.includes('youtube.com') || url.includes('youtu.be')) {
     let videoId = '';
     if (url.includes('/shorts/')) {
@@ -35,16 +33,10 @@ const getEmbedUrl = (url: string): string | null => {
     }
     return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
   }
-
-  // 2. TikTok
   if (url.includes('tiktok.com')) {
     const match = url.match(/\/video\/(\d+)/);
-    if (match && match[1]) {
-      return `https://www.tiktok.com/embed/v2/${match[1]}`;
-    }
+    if (match && match[1]) return `https://www.tiktok.com/embed/v2/${match[1]}`;
   }
-
-  // 3. Instagram (Reels, Posty wideo)
   if (url.includes('instagram.com')) {
     if (url.includes('/reel/') || url.includes('/p/')) {
       const baseUrl = url.split('?')[0];
@@ -52,31 +44,22 @@ const getEmbedUrl = (url: string): string | null => {
       return `${cleanUrl}embed`;
     }
   }
-
-  // 4. Facebook
   if (url.includes('facebook.com') || url.includes('fb.watch')) {
     const encodedUrl = encodeURIComponent(url);
     return `https://www.facebook.com/plugins/video.php?href=${encodedUrl}&show_text=false&width=auto`;
   }
-
-  // Jeśli link jest już w formie embed lub pochodzi z innej strony, próbujemy wyświetlić go bezpośrednio
   return url;
 };
 
-export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }: MatchTabsProps) {
+export default function MatchTabs({ matchId, league, videos, analyses: initialAnalyses }: MatchTabsProps) {
   const [activeTab, setActiveTab] = useState('chat');
-  
-  // Stany dla Analiz
   const [analysisText, setAnalysisText] = useState('');
   const [localAnalyses, setLocalAnalyses] = useState<Analysis[]>(initialAnalyses || []);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Stany dla Czatu
   const [chatMessages, setChatMessages] = useState<{id: number, text: string, author: string}[]>([]);
   const [chatInput, setChatInput] = useState('');
   const [nickname, setNickname] = useState('');
 
-  // --- ZAPIS GLOBALNY: Pobieranie wiadomości z Django ---
   const fetchChatMessages = async () => {
     try {
       const res = await fetch(`https://tomi19sdz.pythonanywhere.com/api/matches/${matchId}/chat/`);
@@ -89,7 +72,6 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
     }
   };
 
-  // Uruchom pobieranie czatu przy załadowaniu oraz odświeżaj co 3 sekundy (Live Chat)
   useEffect(() => {
     fetchChatMessages();
     const interval = setInterval(fetchChatMessages, 3000);
@@ -99,16 +81,14 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
   const submitAnalysis = async () => {
     if (!analysisText.trim()) return;
     setIsSubmitting(true);
-    
     try {
       const res = await fetch(`https://tomi19sdz.pythonanywhere.com/api/matches/${matchId}/add_analysis/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: analysisText }),
       });
-
       if (res.ok) {
-        alert('Twoja analiza została wysłana i oczekuje na zatwierdzenie przez administratora.');
+        alert('Twoja analiza została wysłana i oczekuje na zatwierdzenie.');
         setAnalysisText(''); 
       } else {
         alert('Wystąpił błąd podczas dodawania analizy.');
@@ -120,27 +100,18 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
     }
   };
 
-  // --- ZAPIS GLOBALNY: Wysyłanie wiadomości do Django ---
   const sendChatMessage = async () => {
     if (!chatInput.trim()) return;
-    
     const currentNickname = nickname.trim() !== '' ? nickname.trim() : 'Anonim';
     const textToSend = chatInput;
-    
-    // Natychmiastowo czyścimy pole tekstowe po kliknięciu
     setChatInput('');
-    
     try {
       const res = await fetch(`https://tomi19sdz.pythonanywhere.com/api/matches/${matchId}/chat/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ author: currentNickname, text: textToSend }),
       });
-
-      if (res.ok) {
-        // Po udanym wysłaniu od razu pobieramy odświeżoną listę z serwera
-        fetchChatMessages();
-      }
+      if (res.ok) fetchChatMessages();
     } catch (error) {
       console.error('Błąd wysyłania wiadomości:', error);
     }
@@ -148,6 +119,10 @@ export default function MatchTabs({ matchId, videos, analyses: initialAnalyses }
 
   return (
     <>
+      <div className="text-emerald-400 font-bold mb-4 text-center text-lg uppercase tracking-wider">
+        {league}
+      </div>
+
       <div className="flex border-b border-slate-800 mb-8 overflow-x-auto">
         <button onClick={() => setActiveTab('chat')} className={`py-3 px-8 font-bold text-lg border-b-2 transition-colors whitespace-nowrap ${activeTab === 'chat' ? 'border-emerald-500 text-emerald-500' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Czat</button>
         <button onClick={() => setActiveTab('video')} className={`py-3 px-8 font-bold text-lg border-b-2 transition-colors whitespace-nowrap ${activeTab === 'video' ? 'border-emerald-500 text-emerald-500' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Wideo</button>
