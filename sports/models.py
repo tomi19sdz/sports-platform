@@ -3,14 +3,11 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from dotenv import load_dotenv
-from openai import OpenAI
+from .utils import wygeneruj_analize_ai # <-- DODALIŚMY IMPORT NASZEGO NOWEGO SYSTEMU
 
 # --- ŁADOWANIE KLUCZA ---
-# Zadziała i na Twoim komputerze, i na serwerze PythonAnywhere
-load_dotenv() 
-load_dotenv('/home/tomi19sdz/sports-platform/.env') 
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+load_dotenv()
+load_dotenv('/home/tomi19sdz/sports-platform/.env')
 
 # --- TWOJE BAZOWE MODELE ---
 
@@ -20,8 +17,6 @@ class Match(models.Model):
     home_logo = models.URLField(null=True, blank=True)
     away_logo = models.URLField(null=True, blank=True)
     match_date = models.DateTimeField()
-
-    # Pola na wynik
     home_score = models.IntegerField(null=True, blank=True)
     away_score = models.IntegerField(null=True, blank=True)
     status = models.CharField(max_length=20, default='SCHEDULED')
@@ -56,24 +51,16 @@ def create_ai_analysis(sender, instance, created, **kwargs):
     # Uruchom tylko dla nowo utworzonych meczów, które nie mają jeszcze analizy
     if created and not instance.analyses.exists():
         try:
-            prompt = f"""Jako ekspert sportowy napisz wyczerpującą, szczegółową analizę przedmeczową o spotkaniu {instance.home_team} kontra {instance.away_team}. 
-            Uwzględnij ich aktualną formę, potencjalne kontuzje i statystyki z tego sezonu. Podaj przewidywany wynik spotkania.
-            Tekst ma być rzeczowy, ekspercki i podzielony na przejrzyste akapity.
-            WAŻNE: Dopilnuj, aby tekst był logicznie kompletny, posiadał wyraźne podsumowanie na końcu i pod żadnym pozorem nie urywał się w połowie zdania. Zmieść się w przedziale 300-400 słów."""
+            # 1. Budujemy nazwę meczu z danych wpisanych w adminie
+            nazwa_meczu = f"{instance.home_team} vs {instance.away_team}"
             
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": "Jesteś cenionym ekspertem piłkarskim. Unikaj banałów."},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=2500,
-                temperature=0.7
+            # 2. Uruchamiamy nasz PRAWIDŁOWY generator AI z pliku utils.py
+            gotowy_tekst = wygeneruj_analize_ai(nazwa_meczu)
+            
+            # 3. Zapisujemy wygenerowaną, świeżą analizę
+            Analysis.objects.create(
+                match=instance, 
+                content=gotowy_tekst
             )
-            
-            ai_content = response.choices[0].message.content.strip()
-            Analysis.objects.create(match=instance, content=ai_content)
-            
         except Exception as e:
-            # Rejestruje błąd w konsoli serwera w razie problemów z API
-            print(f"Błąd generatora AI: {e}")
+            print(f"Błąd podczas automatycznego generowania analizy: {e}")
