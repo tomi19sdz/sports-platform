@@ -5,6 +5,7 @@ interface Match {
   id: number;
   home_team: string;
   away_team: string;
+  league: string; // <-- DODANO
   home_logo: string | null;
   away_logo: string | null;
   match_date: string;
@@ -24,10 +25,7 @@ async function getMatches() {
 export default async function HomePage() {
   const groupedMatches = await getMatches();
   
-  // Pobieramy dzisiejszą datę w formacie YYYY-MM-DD
   const todayStr = new Date().toISOString().split('T')[0];
-  
-  // Filtrujemy TYLKO mecze dzisiejsze i przyszłe
   const upcomingMatches = Object.entries(groupedMatches).filter(([date]) => date >= todayStr);
 
   return (
@@ -39,7 +37,6 @@ export default async function HomePage() {
           </h1>
           <p className="text-slate-400 text-lg mb-8">Rozkład jazdy i wyniki na żywo</p>
           
-          {/* Nawigacja / Zakładki */}
           <div className="flex justify-center space-x-4">
             <Link href="/" className="px-6 py-2 bg-emerald-600 text-white rounded-full font-bold shadow-lg shadow-emerald-500/20">
               Nadchodzące
@@ -75,6 +72,9 @@ export default async function HomePage() {
                     </div>
                     
                     <div className="flex flex-col items-center justify-center px-4 w-full sm:w-1/5 my-4 sm:my-0">
+                      {/* WYŚWIETLENIE LIGI */}
+                      <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest mb-1">{match.league}</span>
+                      
                       <span className="text-xs text-slate-400 mb-2 font-medium">{new Date(match.match_date).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}</span>
                       {['FINISHED', 'IN_PLAY', 'PAUSED'].includes(match.status) ? (
                         <span className="bg-emerald-500/10 px-4 py-1.5 rounded-xl text-emerald-400 font-black tracking-widest text-lg border border-emerald-500/30 group-hover:border-emerald-500/60 transition-all">
