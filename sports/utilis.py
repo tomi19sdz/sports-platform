@@ -69,3 +69,4 @@ def aktualizuj_analize(stara_analiza, mecz):
     
     # Łączymy stare z nowym tylko wtedy, gdy nowa treść jest wartościowa
     return f"{stara_analiza}\n\n--- AKTUALIZACJA ({data_aktualizacji}):\n{nowa_tresc}"
+
