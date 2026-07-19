@@ -57,14 +57,15 @@ ZASADA: Analiza musi opierać się WYŁĄCZNIE na dostarczonych danych z sieci.
         return "Wystąpił błąd podczas generowania analizy przez system AI."
 
 def aktualizuj_analize(stara_analiza, mecz):
-    """Nowa funkcja: bierze starą analizę i dopisuje nową pod spodem."""
-    nowa_analiza = wygeneruj_analize_ai(mecz)
+    """Dokleja tylko rzetelne, nowe analizy. W przypadku błędów zostawia wszystko bez zmian."""
+    nowa_tresc = wygeneruj_analize_ai(mecz)
     
-    # Jeśli nowa analiza to tylko informacja o oczekiwaniu, nie nadpisujmy starej
-    if "Analiza jest w przygotowaniu" in nowa_analiza:
+    # Jeśli wystąpił błąd sieci lub brak danych, nie dopisujemy nic do bazy
+    # Dzięki temu analiza na stronie pozostaje czysta i profesjonalna
+    if "Aktualnie nie możemy połączyć się" in nowa_tresc or "Analiza jest w przygotowaniu" in nowa_tresc:
         return stara_analiza
         
     data_aktualizacji = date.today().strftime("%d.%m.%Y %H:%M")
     
-    # Łączymy stare z nowym
-    return f"{stara_analiza}\n\n--- AKTUALIZACJA ({data_aktualizacji}):\n{nowa_analiza}"
+    # Łączymy stare z nowym tylko wtedy, gdy nowa treść jest wartościowa
+    return f"{stara_analiza}\n\n--- AKTUALIZACJA ({data_aktualizacji}):\n{nowa_tresc}"
