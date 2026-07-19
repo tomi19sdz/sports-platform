@@ -1,5 +1,5 @@
 import os
-from datetime import date # <-- Dodaliśmy import daty
+from datetime import date
 from django.conf import settings
 from duckduckgo_search import DDGS
 from openai import OpenAI
@@ -17,7 +17,7 @@ def pobierz_swieze_dane(mecz):
     return dzisiejsze_fakty
 
 def wygeneruj_analize_ai(mecz):
-    """Tworzy analizę na podstawie świeżych danych z widoczną datą."""
+    """Tworzy analizę i samodzielnie wnioskuje datę zebranych informacji źródłowych."""
     
     ukryty_klucz = os.environ.get("OPENAI_API_KEY", getattr(settings, "OPENAI_API_KEY", None))
     
@@ -28,25 +28,27 @@ def wygeneruj_analize_ai(mecz):
     
     swieze_dane = pobierz_swieze_dane(mecz)
     
-    # Pobieramy dzisiejszą datę w formacie DD.MM.YYYY
+    # Przekazujemy AI dzisiejszą datę, aby miało orientację w czasie
     dzisiejsza_data = date.today().strftime("%d.%m.%Y")
     
     prompt = f"""
-    Jesteś profesjonalnym analitykiem sportowym dla portalu sportsplatform.pl. 
+    Jesteś profesjonalnym analitykiem sportowym dla portalu sportsplatform.pl. Dzisiejsza data to {dzisiejsza_data}.
     Napisz profesjonalną analizę dla meczu: {mecz}.
     
-    ZABRANIAM CI opierać się na swojej historycznej wiedzy, ponieważ jest przestarzała.
-    Masz oprzeć się WYŁĄCZNIE na tych najświeższych informacjach z dzisiaj, które pobrałem z internetu:
+    ZABRANIAM CI opierać się na swojej historycznej wiedzy.
+    Masz oprzeć się WYŁĄCZNIE na tych najświeższych informacjach pobranych z internetu:
     
     ### ŚWIEŻE DANE Z INTERNETU: ###
     {swieze_dane}
     #################################
     
-    Na podstawie tych informacji, wymień krótko mocne i słabe strony z ostatnich dni i zaproponuj ostateczny typ (np. Wygrana gospodarzy).
+    Na podstawie tych informacji, wymień krótko mocne i słabe strony z ostatnich dni i zaproponuj ostateczny typ.
     
-    WYMÓG FORMALNY: 
-    Na samym początku swojej odpowiedzi MUSISZ umieścić pogrubioną linijkę o treści:
-    **Analiza oparta na najświeższych danych z dnia: {dzisiejsza_data}**
+    WYMÓG FORMALNY:
+    Na samej górze swojej odpowiedzi MUSISZ napisać pogrubioną czcionką, z jakich dni/dat pochodzą informacje umieszczone w artykułach. Przeanalizuj treść danych (np. jeśli mówią o kontuzji z 15 lipca lub meczu z zeszłej środy, wpisz tę datę). Jeśli artykuły nie precyzują konkretnych dat wydarzeń, napisz po prostu, że są to informacje zebrane w dniu {dzisiejsza_data}.
+    
+    Format, jakiego masz użyć na samym początku (zawsze podawaj jako pierwsza linijka):
+    **Analiza oparta na informacjach źródłowych z: [TUTAJ WPISZ WYWNIOSKOWANĄ DATĘ / OKRES]**
     """
 
     odpowiedz = klient.chat.completions.create(
