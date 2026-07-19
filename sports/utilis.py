@@ -5,25 +5,22 @@ from duckduckgo_search import DDGS
 from openai import OpenAI
 
 def pobierz_swieze_dane(mecz):
-    """Szuka tylko twardych faktów w globalnych serwisach informacyjnych."""
-    zapytanie = f"{mecz} match preview stats injuries lineup analysis 2026"
-    dane_lista = []
-    
+    """Szuka faktów przy użyciu bardziej stabilnej metody text()."""
+    zapytanie = f"{mecz} match preview stats injuries lineup 2026"
     try:
-        with DDGS() as ddgs:
-            wyniki = ddgs.news(zapytanie, region='wt-wt', max_results=5)
-            for wynik in wyniki:
-                dane_lista.append(f"Źródło: {wynik.get('title', '')}. Treść: {wynik.get('body', '')}")
+        with DDGS(timeout=30) as ddgs:
+            # Używamy metody text(), która jest stabilniejsza na serwerach
+            wyniki = [r for r in ddgs.text(zapytanie, max_results=3)]
+        
+        if not wyniki:
+            return "BRAK_DANYCH"
+            
+        return "\n".join([f"{r.get('title', '')}: {r.get('body', '')}" for r in wyniki])
     except Exception:
         return "BŁĄD_SIECI"
-            
-    if len(dane_lista) < 2:
-        return "BRAK_DANYCH"
-    return "\n".join(dane_lista)
 
 def wygeneruj_analize_ai(mecz):
     """Generuje profesjonalną analizę lub informuje o oczekiwaniu na dane."""
-    
     ukryty_klucz = os.environ.get("OPENAI_API_KEY", getattr(settings, "OPENAI_API_KEY", None))
     if not ukryty_klucz: 
         return "Błąd konfiguracji serwera."
@@ -60,13 +57,11 @@ def aktualizuj_analize(stara_analiza, mecz):
     """Dokleja tylko rzetelne, nowe analizy. W przypadku błędów zostawia wszystko bez zmian."""
     nowa_tresc = wygeneruj_analize_ai(mecz)
     
-    # Jeśli wystąpił błąd sieci lub brak danych, nie dopisujemy nic do bazy
-    # Dzięki temu analiza na stronie pozostaje czysta i profesjonalna
-    if "Aktualnie nie możemy połączyć się" in nowa_tresc or "Analiza jest w przygotowaniu" in nowa_tresc:
+    # Warunki, w których nie dopisujemy błędu do analizy
+    if "Nasz dział analiz pracuje" in nowa_tresc or "Analiza jest w przygotowaniu" in nowa_tresc or "Wystąpił błąd" in nowa_tresc:
         return stara_analiza
         
     data_aktualizacji = date.today().strftime("%d.%m.%Y %H:%M")
     
     # Łączymy stare z nowym tylko wtedy, gdy nowa treść jest wartościowa
     return f"{stara_analiza}\n\n--- AKTUALIZACJA ({data_aktualizacji}):\n{nowa_tresc}"
-

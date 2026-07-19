@@ -1,11 +1,12 @@
 from django.contrib import admin
 from .models import Match, Analysis, ChatMessage, Video
-from .utils import aktualizuj_analize  # Upewnij się, że funkcja jest w utils.py
+from .utils import aktualizuj_analize
 
 @admin.register(Match)
 class MatchAdmin(admin.ModelAdmin):
-    list_display = ('home_team', 'away_team', 'match_date')
-    search_fields = ('home_team', 'away_team')
+    list_display = ('home_team', 'away_team', 'league', 'match_date')
+    search_fields = ('home_team', 'away_team', 'league')
+    fields = ('home_team', 'away_team', 'league', 'home_logo', 'away_logo', 'match_date', 'home_score', 'away_score', 'status')
 
 @admin.register(Analysis)
 class AnalysisAdmin(admin.ModelAdmin):
@@ -20,11 +21,8 @@ class AnalysisAdmin(admin.ModelAdmin):
     @admin.action(description="Aktualizuj analizę AI (dopisz nowe dane)")
     def update_analysis_ai(self, request, queryset):
         for obj in queryset:
-            # Używamy pola 'content' tak jak w Twoim modelu
             stara_tresc = obj.content 
-            mecz_nazwa = f"{obj.match.home_team} vs {obj.match.away_team}"
-            
-            # Wywołujemy funkcję aktualizującą
+            mecz_nazwa = f"{obj.match.home_team} vs {obj.match.away_team} w {obj.match.league}"
             obj.content = aktualizuj_analize(stara_tresc, mecz_nazwa)
             obj.save()
 
