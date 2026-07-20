@@ -17,10 +17,9 @@ class MatchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Match
-        # DODANO 'league' w poniższej liście:
-        fields = ['id', 'home_team', 'away_team', 'league', 'match_date', 'home_logo', 'away_logo', 'videos', 'analyses', 'home_score', 'away_score', 'status']
+        # DODAŁEM 'prediction_status' na końcu listy poniżej:
+        fields = ['id', 'home_team', 'away_team', 'league', 'match_date', 'home_logo', 'away_logo', 'videos', 'analyses', 'home_score', 'away_score', 'status', 'prediction_status']
 
     def get_analyses(self, obj):
-        # Pobieramy tylko te, które mają zaznaczone is_approved
         approved_analyses = obj.analyses.filter(is_approved=True)
         return AnalysisSerializer(approved_analyses, many=True).data
