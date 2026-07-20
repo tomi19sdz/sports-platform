@@ -5,14 +5,25 @@ interface Match {
   id: number;
   home_team: string;
   away_team: string;
-  league: string; // <-- Dodano
+  league: string;
   home_logo: string | null;
   away_logo: string | null;
   match_date: string;
   home_score: number | null;
   away_score: number | null;
   status: string;
+  prediction_status: 'EXACT' | 'WINNER' | 'WRONG' | null; // <-- Dodane pole do logiki kolorów
 }
+
+// Funkcja pomocnicza do kolorów
+const getStatusStyles = (status: string | null) => {
+  switch (status) {
+    case 'EXACT': return 'bg-emerald-500/20 border-emerald-500 text-emerald-400'; // Zielony
+    case 'WINNER': return 'bg-blue-500/20 border-blue-500 text-blue-400';       // Niebieski
+    case 'WRONG': return 'bg-red-500/20 border-red-500 text-red-400';           // Czerwony
+    default: return 'bg-slate-800 border-slate-700 text-slate-300';             // Domyślny (szary)
+  }
+};
 
 async function getMatches() {
   const res = await fetch('https://tomi19sdz.pythonanywhere.com/api/matches/', {
@@ -26,10 +37,7 @@ export default async function HistoryPage() {
   const groupedMatches = await getMatches();
   const todayStr = new Date().toISOString().split('T')[0];
   
-  // Filtrujemy TYLKO mecze zakończone/przeszłe
   const pastMatches = Object.entries(groupedMatches).filter(([date]) => date < todayStr);
-  
-  // Odwracamy kolejność, aby najświeższa historia była na samej górze
   pastMatches.sort((a, b) => b[0].localeCompare(a[0]));
 
   return (
@@ -41,6 +49,13 @@ export default async function HistoryPage() {
           </h1>
           <p className="text-slate-400 text-lg mb-8">Archiwum zakończonych spotkań</p>
           
+          {/* Legenda kolorów */}
+          <div className="flex flex-wrap justify-center gap-4 mb-8 text-xs sm:text-sm text-slate-400">
+             <div className="flex items-center"><span className="w-3 h-3 bg-emerald-500 rounded-full mr-2"></span> Poprawny wynik</div>
+             <div className="flex items-center"><span className="w-3 h-3 bg-blue-500 rounded-full mr-2"></span> Poprawna wygrana</div>
+             <div className="flex items-center"><span className="w-3 h-3 bg-red-500 rounded-full mr-2"></span> Błędna analiza</div>
+          </div>
+
           <div className="flex justify-center space-x-4">
             <Link href="/" className="px-6 py-2 bg-slate-800 text-slate-300 rounded-full font-bold hover:bg-slate-700 transition-colors">
               Nadchodzące
@@ -68,7 +83,6 @@ export default async function HistoryPage() {
                 {matches.map((match) => (
                   <Link key={match.id} href={`/match/${match.id}`} className="relative bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 hover:border-slate-500/50 hover:bg-slate-800/60 transition-all duration-300 flex flex-col sm:flex-row items-center justify-between group">
                     
-                    {/* --- LIGA NA LEWEJ STRONIE --- */}
                     <div className="w-full sm:absolute sm:left-6 sm:top-1/2 sm:-translate-y-1/2 sm:w-[20%] text-center sm:text-left mb-4 sm:mb-0">
                       <span className="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-widest block truncate">
                         {match.league}
@@ -82,7 +96,7 @@ export default async function HistoryPage() {
                     
                     <div className="flex flex-col items-center justify-center px-4 w-full sm:w-1/5 my-4 sm:my-0 z-10">
                       {['FINISHED', 'IN_PLAY', 'PAUSED'].includes(match.status) ? (
-                        <span className="bg-slate-800 px-4 py-1.5 rounded-xl text-slate-300 font-black tracking-widest text-lg border border-slate-700">
+                        <span className={`${getStatusStyles(match.prediction_status)} px-4 py-1.5 rounded-xl font-black tracking-widest text-lg border`}>
                           {match.home_score ?? 0} : {match.away_score ?? 0}
                         </span>
                       ) : (
