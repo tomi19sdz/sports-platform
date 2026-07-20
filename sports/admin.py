@@ -4,9 +4,10 @@ from .utils import aktualizuj_analize
 
 @admin.register(Match)
 class MatchAdmin(admin.ModelAdmin):
-    list_display = ('home_team', 'away_team', 'league', 'match_date')
+    list_display = ('home_team', 'away_team', 'league', 'match_date', 'prediction_status')
+    list_editable = ('prediction_status',) # Pozwala zmieniać status bezpośrednio na liście
     search_fields = ('home_team', 'away_team', 'league')
-    fields = ('home_team', 'away_team', 'league', 'home_logo', 'away_logo', 'match_date', 'home_score', 'away_score', 'status')
+    fields = ('home_team', 'away_team', 'league', 'home_logo', 'away_logo', 'match_date', 'home_score', 'away_score', 'status', 'prediction_status')
 
 @admin.register(Analysis)
 class AnalysisAdmin(admin.ModelAdmin):
