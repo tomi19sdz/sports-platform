@@ -16,8 +16,8 @@ def pobierz_swieze_dane(mecz):
 
     try:
         tavily = TavilyClient(api_key=tavily_klucz)
-        # Dynamiczne zapytanie z uwzględnieniem bieżącego roku
-        zapytanie = f"{mecz} zapowiedź meczu kontuzje składy {date.today().year}"
+        # Dynamiczne zapytanie wymuszające szukanie formy, kontuzji i kursów
+        zapytanie = f"{mecz} zapowiedź meczu ostatnie wyniki kontuzje składy kursy bukmacherskie {date.today().year}"
         
         # Pobieranie 3 najbardziej dopasowanych wyników z sieci
         odpowiedz = tavily.search(query=zapytanie, search_depth="basic", max_results=3)
@@ -43,23 +43,37 @@ def wygeneruj_analize_ai(mecz):
     swieze_dane = pobierz_swieze_dane(mecz)
     
     if swieze_dane:
-        kontekst = f"DANE Z SIECI:\n{swieze_dane}"
+        kontekst = f"DANE Z SIECI (Ostatnia forma, kursy, kontuzje):\n{swieze_dane}"
     else:
-        kontekst = "Brak najnowszych doniesień. Oprzyj się na ogólnej wiedzy o stylu gry obu zespołów."
+        kontekst = "Brak najnowszych doniesień. Oprzyj się na ogólnej wiedzy o aktualnym sezonie obu zespołów."
 
-    # POTĘŻNY SYSTEM PROMPT Z WYMUSZONYM BLOKIEM MYŚLENIA
-    system_prompt = """Jesteś elitarnym analitykiem sportowym. 
+    # POTĘŻNY SYSTEM PROMPT: ŁĄCZY TWOJE ZABEZPIECZENIA KADROWE Z MOJĄ LOGIKĄ BUKMACHERSKĄ
+    system_prompt = """Jesteś elitarnym analitykiem sportowym i ekspertem od wykrywania niespodzianek bukmacherskich. 
 Każdą odpowiedź MUSISZ zacząć od sekcji weryfikacyjnej zamkniętej w znacznikach START_THINKING oraz END_THINKING. 
-W tej sekcji wypisz wszystkich kluczowych piłkarzy wymienionych w danych z sieci i przypisz im PRAWIDŁOWĄ reprezentację/klub (np. Nico Williams = Hiszpania, Lionel Messi = Argentyna).
+W tej sekcji wykonaj następujące kroki:
+1. Wypisz wszystkich kluczowych piłkarzy wymienionych w danych z sieci i przypisz im PRAWIDŁOWĄ reprezentację/klub (np. Nico Williams = Hiszpania, Lionel Messi = Argentyna).
+2. Zidentyfikuj realną formę obu drużyn (czy faworyt ostatnio wygrywa łatwo, czy się męczy).
+3. Wypisz kluczowe absencje/kontuzje mające wpływ na mecz.
+4. Oceń, czy kursy/status faworyta są adekwatne do rzeczywistości, czy to pułapka.
 
 Przykład startu odpowiedzi:
 START_THINKING
 - Nico Williams: reprezentacja Hiszpanii (kontuzja hamstringu)
 - Lionel Messi: reprezentacja Argentyny
+- Forma: Gospodarze wygrali 1 z ostatnich 5 meczów. Goście regularnie punktują.
+- Wniosek: Faworyt jest w kryzysie, to pułapka. Unikam typowania wysokiego wyniku dla gospodarzy.
 END_THINKING
 
-We właściwym artykule (który piszesz DOPIERO PO znaczniku END_THINKING) kategorycznie zabraniam Ci mylić drużyny zawodników. Jeśli ktoś jest z Hiszpanii, pisz o nim wyłącznie w sekcji o Hiszpanii!
-Artykuł ma być charyzmatyczny, profesjonalny i kończyć się sekcją '#### Przewidywany przebieg spotkania' z Twoim typem na wynik meczu."""
+We właściwej analizie (która zaczyna się DOPIERO PO znaczniku END_THINKING) przestrzegaj tych BEZWZGLĘDNYCH ZASAD:
+1. Kategorycznie zabraniam Ci mylić drużyny zawodników. Jeśli ktoś jest z Hiszpanii, pisz o nim wyłącznie w sekcji o Hiszpanii!
+2. Odrzuć mit marki: Jeśli faworyt męczy się w ostatnich meczach lub ma braki kadrowe, ZAKAZUJĘ Ci typowania jego gładkiego zwycięstwa (np. 3:0).
+3. Koniec z leniwym wynikiem 1:1 i 2:1: Jeśli jedna z drużyn wyraźnie dominuje i jest zdrowa, typuj odważnie wysoki wynik odzwierciedlający kurs. Remisy rezerwuj WYŁĄCZNIE dla wyrównanych zespołów.
+4. Artykuł ma być charyzmatyczny, profesjonalny i kończyć się sekcją '#### Przewidywany przebieg spotkania' z Twoim typem.
+
+Na samym końcu analizy wygeneruj podsumowanie w DOKŁADNIE takiej formie:
+#### Przewidywany przebieg spotkania
+- **Proponowany typ:** (np. Wygrana gospodarzy / Under 2.5 bramki)
+- **Proponowany dokładny wynik:** (Konkretny wynik oparty o weryfikację formy, np. 0:2)"""
 
     user_prompt = f"Mecz do analizy: {mecz}\n\n{kontekst}"
 
@@ -70,13 +84,12 @@ Artykuł ma być charyzmatyczny, profesjonalny i kończyć się sekcją '#### Pr
                 {"role": "system", "content": system_prompt}, 
                 {"role": "user", "content": user_prompt}
             ],
-            temperature=0.1
+            temperature=0.1 # Bardzo niska temperatura dla maksymalnej precyzji faktów
         )
         
         pelny_tekst = odpowiedz.choices[0].message.content.strip()
         
-        # --- SPRZĄTANIE KODEM (Magia Pythona) ---
-        # Jeśli model wygenerował blok myślenia, odcinamy go, żeby ukryć go przed użytkownikiem
+        # --- SPRZĄTANIE KODEM ---
         if "END_THINKING" in pelny_tekst:
             czysta_analiza = pelny_tekst.split("END_THINKING")[-1].strip()
             return czysta_analiza
