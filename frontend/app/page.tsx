@@ -31,11 +31,19 @@ export default async function HomePage() {
   return (
     <main className="min-h-screen bg-[#0a0f16] text-slate-200 p-8">
       <div className="max-w-4xl mx-auto">
-        <header className="mb-10 text-center mt-10">
-          <h1 className="text-5xl font-black text-white mb-4 tracking-tight">
+        <header className="mb-12 text-center mt-10">
+          <h1 className="text-5xl font-black text-white mb-6 tracking-tight">
             Sports <span className="text-emerald-500">Platform</span>
           </h1>
-          <p className="text-slate-400 text-lg mb-8">Rozkład jazdy i wyniki na żywo</p>
+          
+          {/* --- DODANY TEKST SEO DLA GOOGLE ADSENSE I INDEKSOWANIA --- */}
+          <div className="max-w-3xl mx-auto mb-10 text-center">
+            <p className="text-slate-400 leading-relaxed text-lg">
+              Witaj na <strong className="text-emerald-400 font-semibold">Sports Platform</strong> – Twoim niezawodnym źródle zaawansowanych statystyk sportowych i przedmeczowych analiz. 
+              Nasz autorski system oparty na sztucznej inteligencji na bieżąco monitoruje kontuzje, realną formę zespołów oraz rynkowe kursy, dostarczając Ci najbardziej prawdopodobne typy i dokładne wyniki. Śledź na żywo zmagania najlepszych lig i podejmuj świadome decyzje na podstawie twardych danych.
+            </p>
+          </div>
+          {/* -------------------------------------------------------- */}
           
           <div className="flex justify-center space-x-4">
             <Link href="/" className="px-6 py-2 bg-emerald-600 text-white rounded-full font-bold shadow-lg shadow-emerald-500/20">
@@ -68,7 +76,6 @@ export default async function HomePage() {
                   <Link key={match.id} href={`/match/${match.id}`} className="relative bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 hover:border-emerald-500/50 hover:bg-slate-800/60 hover:-translate-y-1 transition-all duration-300 flex flex-col sm:flex-row items-center justify-between group shadow-lg shadow-black/20">
                     
                     {/* --- ZMIANA: LIGA NA LEWEJ STRONIE --- */}
-                    {/* Na Desktopie pozycjonowana absolutnie po lewej, na Mobile ląduje u góry */}
                     <div className="w-full sm:absolute sm:left-6 sm:top-1/2 sm:-translate-y-1/2 sm:w-[20%] text-center sm:text-left mb-4 sm:mb-0">
                       <span className="text-[10px] sm:text-xs text-white font-bold uppercase tracking-widest block truncate">
                         {match.league}
