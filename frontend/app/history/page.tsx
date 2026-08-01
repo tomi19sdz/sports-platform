@@ -26,7 +26,7 @@ const getStatusStyles = (status: string | null) => {
 
 async function getMatches(league?: string, month?: string) {
   // POPRAWIONY URL - bez "api/" na początku, dokładnie tak jak masz w swoim Django
-  let url = 'https://tomi19sdz.pythonanywhere.com/matches/';
+  let url = 'https://tomi19sdz.pythonanywhere.com/api/matches/';
   const params = new URLSearchParams();
   
   if (league) params.append('league', league);
