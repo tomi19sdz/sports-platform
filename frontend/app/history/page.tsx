@@ -24,10 +24,9 @@ const getStatusStyles = (status: string | null) => {
   }
 };
 
-// Funkcja teraz przyjmuje parametry filtrów i dodaje je do URL API
 async function getMatches(league?: string, month?: string) {
-  // Pamiętaj: Jeśli usunąłeś "api/" ze ścieżki w Django, zmień ten URL na ".../matches/"
-  let url = 'https://tomi19sdz.pythonanywhere.com/api/matches/';
+  // POPRAWIONY URL - bez "api/" na początku, dokładnie tak jak masz w swoim Django
+  let url = 'https://tomi19sdz.pythonanywhere.com/matches/';
   const params = new URLSearchParams();
   
   if (league) params.append('league', league);
@@ -38,13 +37,12 @@ async function getMatches(league?: string, month?: string) {
   }
 
   const res = await fetch(url, { 
-    cache: 'no-store' // Wymusza pobranie nowych danych przy każdym filtrowaniu
+    cache: 'no-store' 
   });
   if (!res.ok) return {};
   return res.json() as Promise<Record<string, Match[]>>;
 }
 
-// Next.js pozwala pobrać parametry (filtry) prosto z adresu przeglądarki
 export default async function HistoryPage({ searchParams }: { searchParams?: { league?: string; month?: string } }) {
   const selectedLeague = searchParams?.league || '';
   const selectedMonth = searchParams?.month || '';
@@ -55,7 +53,6 @@ export default async function HistoryPage({ searchParams }: { searchParams?: { l
   const pastMatches = Object.entries(groupedMatches).filter(([date]) => date < todayStr);
   pastMatches.sort((a, b) => b[0].localeCompare(a[0]));
 
-  // --- LICZNIKI STATYSTYK ---
   let exactCount = 0;
   let winnerCount = 0;
   let wrongCount = 0;
@@ -77,7 +74,6 @@ export default async function HistoryPage({ searchParams }: { searchParams?: { l
           </h1>
           <p className="text-slate-400 text-lg mb-6">Archiwum zakończonych spotkań i skuteczność</p>
 
-          {/* --- PANEL FILTRÓW --- */}
           <form method="GET" action="/history" className="mb-8 flex flex-col sm:flex-row gap-4 justify-center items-center bg-slate-900/50 p-4 rounded-2xl border border-slate-800/80">
             <select 
               name="league" 
@@ -85,14 +81,17 @@ export default async function HistoryPage({ searchParams }: { searchParams?: { l
               className="bg-slate-950 border border-slate-800 text-slate-300 rounded-xl px-4 py-2.5 outline-none focus:border-emerald-500 transition-colors w-full sm:w-auto"
             >
               <option value="">Wszystkie ligi</option>
-              <option value="Premier League">Premier League</option>
-              <option value="La Liga">La Liga</option>
-              <option value="Serie A">Serie A</option>
-              <option value="Bundesliga">Bundesliga</option>
-              <option value="Ligue 1">Ligue 1</option>
-              <option value="UEFA Champions League">Liga Mistrzów</option>
-              <option value="FIFA World Cup">Mistrzostwa Świata</option>
-              <option value="European Championship">Mistrzostwa Europy</option>
+              {/* LIGI ZAKTUALIZOWANE ZGODNIE Z TWOJĄ BAZĄ DANYCH */}
+              <option value="Polska Ekstraklasa">Polska Ekstraklasa</option>
+              <option value="Polska 1 Liga">Polska 1 Liga</option>
+              <option value="Polska 2 Liga">Polska 2 Liga</option>
+              <option value="Polska 3 Liga">Polska 3 Liga</option>
+              <option value="Norwegia Eliteserin">Norwegia Eliteserin</option>
+              <option value="Czechy chance liga">Czechy chance liga</option>
+              <option value="Chorwacja HNL">Chorwacja HNL</option>
+              <option value="Bułgaria Parva Liga">Bułgaria Parva Liga</option>
+              <option value="Belgia Superpuchar">Belgia Superpuchar</option>
+              <option value="Austria Bundesliga">Austria Bundesliga</option>
             </select>
 
             <select 
@@ -120,7 +119,6 @@ export default async function HistoryPage({ searchParams }: { searchParams?: { l
             )}
           </form>
 
-          {/* --- KAFELKI STATYSTYK --- */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 flex items-center justify-between">
               <div className="flex items-center">
