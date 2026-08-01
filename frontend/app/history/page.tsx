@@ -1,6 +1,10 @@
 import Link from 'next/link';
 import React from 'react';
 
+// BEZWZGLĘDNE WYMUSZENIE BRAKU CACHE'U NA VERCELU:
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface Match {
   id: number;
   home_team: string;
@@ -25,7 +29,6 @@ const getStatusStyles = (status: string | null) => {
 };
 
 async function getMatches(league?: string, month?: string) {
-  // POPRAWIONY URL - bez "api/" na początku, dokładnie tak jak masz w swoim Django
   let url = 'https://tomi19sdz.pythonanywhere.com/api/matches/';
   const params = new URLSearchParams();
   
@@ -43,14 +46,24 @@ async function getMatches(league?: string, month?: string) {
   return res.json() as Promise<Record<string, Match[]>>;
 }
 
-export default async function HistoryPage({ searchParams }: { searchParams?: { league?: string; month?: string } }) {
-  const selectedLeague = searchParams?.league || '';
-  const selectedMonth = searchParams?.month || '';
+// Zmiana typu na "any", co zabezpiecza nas przed błędem nowej wersji Next.js (15)
+export default async function HistoryPage({ searchParams }: any) {
+  // Promise.resolve upewnia się, że działa to perfekcyjnie na Next.js 13, 14 i najnowszym 15!
+  const params = await Promise.resolve(searchParams || {});
+  const selectedLeague = params.league || '';
+  const selectedMonth = params.month || '';
 
   const groupedMatches = await getMatches(selectedLeague, selectedMonth);
 
-  const todayStr = new Date().toISOString().split('T')[0];
-  const pastMatches = Object.entries(groupedMatches).filter(([date]) => date < todayStr);
+  // USUNIĘTO WADLIWY KOD Z DATAMI! 
+  // Teraz po prostu bierzemy mecze, które mają status FINISHED. Nie ukryje nam dzisiejszych!
+  const pastMatches = Object.entries(groupedMatches)
+    .map(([date, matches]) => {
+      const finishedMatches = matches.filter(m => m.status === 'FINISHED' || m.prediction_status);
+      return [date, finishedMatches] as const;
+    })
+    .filter(([_, matches]) => matches.length > 0);
+
   pastMatches.sort((a, b) => b[0].localeCompare(a[0]));
 
   let exactCount = 0;
@@ -78,10 +91,10 @@ export default async function HistoryPage({ searchParams }: { searchParams?: { l
             <select 
               name="league" 
               defaultValue={selectedLeague}
+              key={selectedLeague} // Wymusza przerenderowanie wizualne opcji w HTML
               className="bg-slate-950 border border-slate-800 text-slate-300 rounded-xl px-4 py-2.5 outline-none focus:border-emerald-500 transition-colors w-full sm:w-auto"
             >
               <option value="">Wszystkie ligi</option>
-              {/* LIGI ZAKTUALIZOWANE ZGODNIE Z TWOJĄ BAZĄ DANYCH */}
               <option value="Polska Ekstraklasa">Polska Ekstraklasa</option>
               <option value="Polska 1 Liga">Polska 1 Liga</option>
               <option value="Polska 2 Liga">Polska 2 Liga</option>
@@ -97,6 +110,7 @@ export default async function HistoryPage({ searchParams }: { searchParams?: { l
             <select 
               name="month" 
               defaultValue={selectedMonth}
+              key={selectedMonth} // Wymusza przerenderowanie wizualne opcji w HTML
               className="bg-slate-950 border border-slate-800 text-slate-300 rounded-xl px-4 py-2.5 outline-none focus:border-emerald-500 transition-colors w-full sm:w-auto"
             >
               <option value="">Wszystkie miesiące</option>
