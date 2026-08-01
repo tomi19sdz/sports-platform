@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import MatchListView, MatchDetailView, trigger_fetch, AddAnalysisView, MatchChatView, api_generuj_analize
+from .views import MatchListView, MatchDetailView, trigger_fetch, AddAnalysisView, MatchChatView, api_generuj_analize, MatchStatsView
 
 urlpatterns = [
     path('matches/', MatchListView.as_view(), name='match-list'),
@@ -10,4 +10,7 @@ urlpatterns = [
     
     # Zmieniona ścieżka - usunęliśmy "api/" z początku:
     path('generuj-analize/', api_generuj_analize, name='api_generuj_analize'),
+
+    # NOWA ŚCIEŻKA DO STATYSTYK (publiczna dla wszystkich):
+    path('stats/', MatchStatsView.as_view(), name='match-stats'),
 ]
