@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import React from 'react';
 
-// BEZWZGLĘDNE WYMUSZENIE BRAKU CACHE'U NA VERCELU:
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -28,6 +27,30 @@ const getStatusStyles = (status: string | null) => {
   }
 };
 
+// --- NOWOŚĆ: Automatyczne pobieranie wszystkich dostępnych lig ---
+async function getAvailableLeagues() {
+  try {
+    const res = await fetch('https://tomi19sdz.pythonanywhere.com/api/matches/');
+    if (!res.ok) return [];
+    const groupedMatches = (await res.json()) as Record<string, Match[]>;
+    
+    // Używamy Set, aby odfiltrować duplikaty lig
+    const leagues = new Set<string>();
+    Object.values(groupedMatches).forEach(matches => {
+      matches.forEach(match => {
+        if (match.league) leagues.add(match.league);
+      });
+    });
+    
+    // Zwracamy posortowaną alfabetycznie listę
+    return Array.from(leagues).sort(); 
+  } catch (error) {
+    console.error("Błąd podczas pobierania lig:", error);
+    return [];
+  }
+}
+
+// Funkcja pobierająca przefiltrowane mecze
 async function getMatches(league?: string, month?: string) {
   let url = 'https://tomi19sdz.pythonanywhere.com/api/matches/';
   const params = new URLSearchParams();
@@ -46,17 +69,15 @@ async function getMatches(league?: string, month?: string) {
   return res.json() as Promise<Record<string, Match[]>>;
 }
 
-// Zmiana typu na "any", co zabezpiecza nas przed błędem nowej wersji Next.js (15)
 export default async function HistoryPage({ searchParams }: any) {
-  // Promise.resolve upewnia się, że działa to perfekcyjnie na Next.js 13, 14 i najnowszym 15!
   const params = await Promise.resolve(searchParams || {});
   const selectedLeague = params.league || '';
   const selectedMonth = params.month || '';
 
+  // Automatycznie pobierana lista lig z bazy
+  const availableLeagues = await getAvailableLeagues();
   const groupedMatches = await getMatches(selectedLeague, selectedMonth);
 
-  // USUNIĘTO WADLIWY KOD Z DATAMI! 
-  // Teraz po prostu bierzemy mecze, które mają status FINISHED. Nie ukryje nam dzisiejszych!
   const pastMatches = Object.entries(groupedMatches)
     .map(([date, matches]) => {
       const finishedMatches = matches.filter(m => m.status === 'FINISHED' || m.prediction_status);
@@ -91,26 +112,24 @@ export default async function HistoryPage({ searchParams }: any) {
             <select 
               name="league" 
               defaultValue={selectedLeague}
-              key={selectedLeague} // Wymusza przerenderowanie wizualne opcji w HTML
+              key={selectedLeague} 
               className="bg-slate-950 border border-slate-800 text-slate-300 rounded-xl px-4 py-2.5 outline-none focus:border-emerald-500 transition-colors w-full sm:w-auto"
             >
               <option value="">Wszystkie ligi</option>
-              <option value="Polska Ekstraklasa">Polska Ekstraklasa</option>
-              <option value="Polska 1 Liga">Polska 1 Liga</option>
-              <option value="Polska 2 Liga">Polska 2 Liga</option>
-              <option value="Polska 3 Liga">Polska 3 Liga</option>
-              <option value="Norwegia Eliteserin">Norwegia Eliteserin</option>
-              <option value="Czechy chance liga">Czechy chance liga</option>
-              <option value="Chorwacja HNL">Chorwacja HNL</option>
-              <option value="Bułgaria Parva Liga">Bułgaria Parva Liga</option>
-              <option value="Belgia Superpuchar">Belgia Superpuchar</option>
-              <option value="Austria Bundesliga">Austria Bundesliga</option>
+              
+              {/* PĘTLA GENERUJĄCA LIGI AUTOMATYCZNIE */}
+              {availableLeagues.map(leagueName => (
+                <option key={leagueName} value={leagueName}>
+                  {leagueName}
+                </option>
+              ))}
+
             </select>
 
             <select 
               name="month" 
               defaultValue={selectedMonth}
-              key={selectedMonth} // Wymusza przerenderowanie wizualne opcji w HTML
+              key={selectedMonth}
               className="bg-slate-950 border border-slate-800 text-slate-300 rounded-xl px-4 py-2.5 outline-none focus:border-emerald-500 transition-colors w-full sm:w-auto"
             >
               <option value="">Wszystkie miesiące</option>
