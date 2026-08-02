@@ -48,18 +48,6 @@ export default async function NewsPage() {
             Najświeższe wiadomości ze świata piłki nożnej. Aktualizowane automatycznie.
           </p>
           
-          {/* Menu Nawigacyjne */}
-          <div className="flex justify-center space-x-4">
-            <Link href="/" className="px-6 py-2 bg-slate-800 text-slate-300 rounded-full font-bold hover:bg-slate-700 transition-colors">
-              Nadchodzące
-            </Link>
-            <Link href="/history" className="px-6 py-2 bg-slate-800 text-slate-300 rounded-full font-bold hover:bg-slate-700 transition-colors">
-              Historia
-            </Link>
-            <Link href="/news" className="px-6 py-2 bg-blue-600 text-white rounded-full font-bold shadow-lg shadow-blue-500/20">
-              Wiadomości
-            </Link>
-          </div>
         </header>
 
         {news.length === 0 ? (

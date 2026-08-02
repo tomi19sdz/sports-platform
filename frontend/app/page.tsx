@@ -45,17 +45,7 @@ export default async function HomePage() {
           </div>
           {/* -------------------------------------------------------- */}
           
-          <div className="flex justify-center space-x-4">
-            <Link href="/" className="px-6 py-2 bg-emerald-600 text-white rounded-full font-bold shadow-lg shadow-emerald-500/20">
-              Nadchodzące
-            </Link>
-            <Link href="/history" className="px-6 py-2 bg-slate-800 text-slate-300 rounded-full font-bold hover:bg-slate-700 transition-colors">
-              Historia
-            </Link>
-            <Link href="/live-sport" className="px-6 py-2 bg-slate-800 text-slate-300 rounded-full font-bold hover:bg-slate-700 transition-colors">
-              Live Sport
-            </Link>
-          </div>
+          
         </header>
 
         {upcomingMatches.length === 0 ? (
