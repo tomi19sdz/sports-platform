@@ -33,7 +33,7 @@ export default function Navbar() {
         </Link>
         
         <Link 
-          href="/live" // Zakładam, że taki masz link do Live Sport
+          href="/live-sport"
           className={`px-4 sm:px-6 py-2 rounded-full font-bold transition-all duration-300 text-sm sm:text-base ${
             pathname === '/live' 
               ? 'bg-red-600 text-white shadow-lg shadow-red-500/20' 
