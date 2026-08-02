@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar"; // <-- Twój poprawny import
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,9 +26,14 @@ export default function RootLayout({
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1288941577582966" crossOrigin="anonymous"></script>
       </head>
       <body className={`${inter.className} flex flex-col min-h-screen`}>
+        
+        {/* TUTAJ WSTAWIAMY NAVBAR - na samej górze strony przed resztą treści */}
+        <Navbar />
+        
         <div className="flex-grow">
           {children}
         </div>
+        
         <Footer />
       </body>
     </html>
