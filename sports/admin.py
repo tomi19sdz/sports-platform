@@ -32,6 +32,15 @@ class MatchAdminForm(forms.ModelForm):
     class Meta:
         model = Match
         fields = '__all__'
+        widgets = {
+            'status': forms.Select(choices=[
+                ('SHEDULED', 'Zaplanowany (SCHEDULED)'),
+                ('IN_PLAY', 'W trakcie (IN_PLAY)'),
+                ('PAUSED', 'Przerwa (PAUSED)'),
+                ('FINISHED', 'Zakończony (FINISHED)'),
+            
+            ])
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
