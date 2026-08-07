@@ -52,7 +52,7 @@ const getEmbedUrl = (url: string): string | null => {
 };
 
 export default function MatchTabs({ matchId, league, videos, analyses: initialAnalyses }: MatchTabsProps) {
-  const [activeTab, setActiveTab] = useState('chat');
+  const [activeTab, setActiveTab] = useState('analysis');
   const [analysisText, setAnalysisText] = useState('');
   const [localAnalyses, setLocalAnalyses] = useState<Analysis[]>(initialAnalyses || []);
   const [isSubmitting, setIsSubmitting] = useState(false);
