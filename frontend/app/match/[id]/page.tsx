@@ -13,7 +13,6 @@ interface Match {
   match_date: string;
   videos: Video[];
   analyses: Analysis[];
-  // --- NOWE POLA Z BACKENDU ---
   confidence_score?: number;
   is_valuebet?: boolean;
   value_percentage?: number;
@@ -25,7 +24,6 @@ async function getMatch(id: string): Promise<Match> {
   return res.json();
 }
 
-// Funkcja generująca meta tagi dla każdego meczu
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const match = await getMatch(id);
@@ -52,32 +50,40 @@ export default async function MatchPage({ params }: { params: Promise<{ id: stri
   const { id } = await params;
   const match = await getMatch(id);
 
+  // Dynamiczne style dla głównego kontenera i nagłówka
+  const isHot = match.is_valuebet;
+  const containerStyle = isHot 
+    ? 'bg-slate-900 border-red-600 shadow-[0_0_30px_rgba(239,68,68,0.2)]' 
+    : 'bg-slate-900 border-slate-800';
+  const vsStyle = isHot ? 'text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]' : 'text-emerald-500';
+
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100 p-8">
       <div className="max-w-5xl mx-auto">
-        <Link href="/" className="text-emerald-500 mb-8 inline-block">&larr; Wróć</Link>
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8">
+        <Link href="/" className="text-emerald-500 mb-8 inline-block hover:text-emerald-400 transition-colors">&larr; Wróć</Link>
+        
+        <div className={`border rounded-3xl p-8 transition-all duration-700 ${containerStyle}`}>
           <h1 className="text-4xl font-extrabold text-center mb-8">
-            {match.home_team} <span className="text-emerald-500">VS</span> {match.away_team}
+            {match.home_team} <span className={vsStyle}>VS</span> {match.away_team}
           </h1>
 
           {/* --- WIZUALIZACJA VALUEBET I PEWNOŚCI AI --- */}
-          <div className="flex flex-col items-center justify-center gap-3 mb-10 p-5 bg-slate-950/50 rounded-2xl border border-slate-800/80 max-w-md mx-auto shadow-inner">
+          <div className={`flex flex-col items-center justify-center gap-3 mb-10 p-5 rounded-2xl border max-w-md mx-auto shadow-inner transition-colors duration-500 ${isHot ? 'bg-red-950/20 border-red-900/50' : 'bg-slate-950/50 border-slate-800/80'}`}>
             <div className="flex items-center gap-3 w-full">
               <span className="text-sm font-bold text-slate-400 whitespace-nowrap">Pewność AI:</span>
               <div className="flex-1 bg-slate-800 rounded-full h-3 overflow-hidden">
                 <div 
-                  className="bg-emerald-500 h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(16,185,129,0.4)]" 
+                  className={`${isHot ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.6)]' : 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]'} h-full rounded-full transition-all duration-1000`} 
                   style={{ width: `${match.confidence_score || 50}%` }}
                 ></div>
               </div>
-              <span className="text-sm font-bold text-emerald-400">
+              <span className={`text-sm font-bold ${isHot ? 'text-red-400' : 'text-emerald-400'}`}>
                 {match.confidence_score || 50}%
               </span>
             </div>
 
-            {match.is_valuebet && (
-              <div className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-black bg-orange-500/10 text-orange-500 border border-orange-500/30 shadow-[0_0_15px_rgba(249,115,22,0.15)] animate-pulse">
+            {isHot && (
+              <div className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-black bg-red-500/10 text-red-500 border border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.3)] animate-pulse">
                 🔥 VALUEBET WYKRYTY: +{match.value_percentage}%
               </div>
             )}
