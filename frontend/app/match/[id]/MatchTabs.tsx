@@ -60,6 +60,23 @@ export default function MatchTabs({ matchId, league, videos, analyses: initialAn
   const [chatInput, setChatInput] = useState('');
   const [nickname, setNickname] = useState('');
 
+  // Magia automatycznego wykrywania Valuebetu z treści
+  const isHotBet = localAnalyses.some(a => 
+    a.content.toLowerCase().includes('valuebet wynosi') || 
+    a.content.toLowerCase().includes('is_value: true')
+  );
+
+  // Dynamiczne kolory (Czerwony ogień dla Valuebetu, Emerald dla reszty)
+  const themeColorText = isHotBet ? 'text-red-500' : 'text-emerald-400';
+  const themeColorBorder = isHotBet ? 'border-red-500' : 'border-emerald-500';
+  const themeActiveTab = isHotBet ? 'border-red-500 text-red-500' : 'border-emerald-500 text-emerald-500';
+  const themeButton = isHotBet 
+    ? 'bg-red-600 hover:bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.4)]' 
+    : 'bg-emerald-600 hover:bg-emerald-500 shadow-[0_0_15px_rgba(0,223,129,0.2)]';
+  const themeContainer = isHotBet 
+    ? 'bg-red-950/10 border-red-600 shadow-[0_0_30px_rgba(239,68,68,0.25)]' 
+    : 'bg-slate-950/50 border-slate-800/50';
+
   const fetchChatMessages = async () => {
     try {
       const res = await fetch(`https://tomi19sdz.pythonanywhere.com/api/matches/${matchId}/chat/`);
@@ -119,17 +136,20 @@ export default function MatchTabs({ matchId, league, videos, analyses: initialAn
 
   return (
     <>
-      <div className="text-emerald-400 font-bold mb-4 text-center text-lg uppercase tracking-wider">
-        {league}
+      <div className={`${themeColorText} ${isHotBet ? 'drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]' : ''} font-bold mb-4 text-center text-lg uppercase tracking-wider transition-colors duration-500`}>
+        {league} {isHotBet && '🔥 GORĄCY VALUEBET 🔥'}
       </div>
 
       <div className="flex border-b border-slate-800 mb-8 overflow-x-auto">
-        <button onClick={() => setActiveTab('chat')} className={`py-3 px-8 font-bold text-lg border-b-2 transition-colors whitespace-nowrap ${activeTab === 'chat' ? 'border-emerald-500 text-emerald-500' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Czat</button>
-        <button onClick={() => setActiveTab('video')} className={`py-3 px-8 font-bold text-lg border-b-2 transition-colors whitespace-nowrap ${activeTab === 'video' ? 'border-emerald-500 text-emerald-500' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Wideo</button>
-        <button onClick={() => setActiveTab('analysis')} className={`py-3 px-8 font-bold text-lg border-b-2 transition-colors whitespace-nowrap ${activeTab === 'analysis' ? 'border-emerald-500 text-emerald-500' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Analizy</button>
+        <button onClick={() => setActiveTab('chat')} className={`py-3 px-8 font-bold text-lg border-b-2 transition-colors whitespace-nowrap ${activeTab === 'chat' ? themeActiveTab : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Czat</button>
+        {/* Ukrywanie wideo, jeśli jest puste (Dobre dla AdSense!) */}
+        {videos && videos.length > 0 && (
+          <button onClick={() => setActiveTab('video')} className={`py-3 px-8 font-bold text-lg border-b-2 transition-colors whitespace-nowrap ${activeTab === 'video' ? themeActiveTab : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Wideo</button>
+        )}
+        <button onClick={() => setActiveTab('analysis')} className={`py-3 px-8 font-bold text-lg border-b-2 transition-colors whitespace-nowrap ${activeTab === 'analysis' ? themeActiveTab : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Analizy</button>
       </div>
       
-      <div className="bg-slate-950/50 rounded-2xl min-h-[400px] p-6 border border-slate-800/50 flex flex-col w-full text-slate-200">
+      <div className={`${themeContainer} rounded-2xl min-h-[400px] p-6 border flex flex-col w-full text-slate-200 transition-all duration-700`}>
         
         {/* ZAKŁADKA CZAT */}
         {activeTab === 'chat' && (
@@ -142,8 +162,8 @@ export default function MatchTabs({ matchId, league, videos, analyses: initialAn
                 </div>
               ) : (
                 chatMessages.map((msg) => (
-                  <div key={msg.id} className="bg-emerald-600/20 border border-emerald-500/30 p-3 rounded-2xl rounded-tr-none max-w-[80%] ml-auto flex flex-col">
-                    <span className="text-xs text-emerald-400 font-bold mb-1">{msg.author}</span>
+                  <div key={msg.id} className={`${isHotBet ? 'bg-red-950/40 border-red-900/50' : 'bg-emerald-600/20 border-emerald-500/30'} border p-3 rounded-2xl rounded-tr-none max-w-[80%] ml-auto flex flex-col transition-colors`}>
+                    <span className={`text-xs ${themeColorText} font-bold mb-1`}>{msg.author}</span>
                     <p className="text-slate-100">{msg.text}</p>
                   </div>
                 ))
@@ -156,7 +176,7 @@ export default function MatchTabs({ matchId, league, videos, analyses: initialAn
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
                 placeholder="Twój nick (opcjonalnie)" 
-                className="w-1/2 md:w-1/3 bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                className={`w-1/2 md:w-1/3 bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:${themeColorBorder} transition-colors`}
               />
               <div className="flex space-x-3">
                 <input 
@@ -165,11 +185,11 @@ export default function MatchTabs({ matchId, league, videos, analyses: initialAn
                   onChange={(e) => setChatInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
                   placeholder="Napisz wiadomość na czacie..." 
-                  className="flex-1 bg-slate-900 border border-slate-700 rounded-xl p-4 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                  className={`flex-1 bg-slate-900 border border-slate-700 rounded-xl p-4 text-white focus:outline-none focus:${themeColorBorder} transition-colors`}
                 />
                 <button 
                   onClick={sendChatMessage}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 md:px-8 rounded-xl transition-all shadow-[0_0_15px_rgba(0,223,129,0.2)]"
+                  className={`${themeButton} text-white font-bold py-3 px-4 md:px-8 rounded-xl transition-all`}
                 >
                   Wyślij
                 </button>
@@ -184,7 +204,7 @@ export default function MatchTabs({ matchId, league, videos, analyses: initialAn
             {videos && videos.length > 0 ? videos.map((v) => {
               const embedUrl = getEmbedUrl(v.video_url);
               return embedUrl ? (
-                <div key={v.id} className="w-full max-w-4xl aspect-video rounded-xl overflow-hidden mb-8 bg-slate-900 flex items-center justify-center">
+                <div key={v.id} className="w-full max-w-4xl aspect-video rounded-xl overflow-hidden mb-8 bg-slate-900 flex items-center justify-center shadow-lg">
                   <iframe 
                     width="100%" 
                     height="100%" 
@@ -202,17 +222,17 @@ export default function MatchTabs({ matchId, league, videos, analyses: initialAn
         {/* ZAKŁADKA ANALIZY */}
         {activeTab === 'analysis' && (
           <div className="flex flex-col w-full max-w-4xl mx-auto space-y-8">
-            <div className="bg-slate-900 border border-slate-700 p-4 rounded-xl">
-              <h3 className="text-emerald-400 font-bold mb-3">Dodaj analizę:</h3>
+            <div className={`${isHotBet ? 'bg-red-950/20 border-red-900/40' : 'bg-slate-900 border-slate-700'} border p-4 rounded-xl transition-colors`}>
+              <h3 className={`${themeColorText} font-bold mb-3`}>Dodaj analizę:</h3>
               <textarea 
-                className="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-slate-200 min-h-[120px]" 
+                className={`w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-slate-200 min-h-[120px] focus:outline-none focus:${themeColorBorder}`}
                 value={analysisText} 
                 onChange={(e) => setAnalysisText(e.target.value)} 
               />
               <button 
                 onClick={submitAnalysis} 
                 disabled={isSubmitting} 
-                className="mt-3 bg-emerald-600 text-white font-bold py-2 px-6 rounded-lg"
+                className={`mt-3 ${themeButton} text-white font-bold py-2 px-6 rounded-lg transition-all`}
               >
                 Wyślij
               </button>
