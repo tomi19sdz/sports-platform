@@ -12,6 +12,7 @@ interface Match {
   home_score: number | null;
   away_score: number | null;
   status: string;
+  is_valuebet?: boolean; // Dodane, aby wyłapywać gorące mecze z backendu
 }
 
 async function getMatches() {
@@ -44,8 +45,6 @@ export default async function HomePage() {
             </p>
           </div>
           {/* -------------------------------------------------------- */}
-          
-          
         </header>
 
         {upcomingMatches.length === 0 ? (
@@ -62,39 +61,62 @@ export default async function HomePage() {
               </h2>
               
               <div className="grid gap-4">
-                {matches.map((match) => (
-                  <Link key={match.id} href={`/match/${match.id}`} className="relative bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 hover:border-emerald-500/50 hover:bg-slate-800/60 hover:-translate-y-1 transition-all duration-300 flex flex-col sm:flex-row items-center justify-between group shadow-lg shadow-black/20">
+                {matches.map((match) => {
+                  const isHot = match.is_valuebet;
+                  
+                  // Dynamiczne style dla głównego kafelka
+                  const cardTheme = isHot 
+                    ? "bg-red-950/10 border-red-900/60 hover:border-red-500 hover:bg-red-900/30 shadow-[0_0_15px_rgba(239,68,68,0.15)]" 
+                    : "bg-slate-900/40 border-slate-800/80 hover:border-emerald-500/50 hover:bg-slate-800/60 shadow-black/20";
                     
-                    {/* --- ZMIANA: LIGA NA LEWEJ STRONIE --- */}
-                    <div className="w-full sm:absolute sm:left-6 sm:top-1/2 sm:-translate-y-1/2 sm:w-[20%] text-center sm:text-left mb-4 sm:mb-0">
-                      <span className="text-[10px] sm:text-xs text-white font-bold uppercase tracking-widest block truncate">
-                        {match.league}
-                      </span>
-                    </div>
-                    {/* ------------------------------------ */}
+                  // Dynamiczne style dla sekcji z wynikiem / "VS"
+                  const scoreTheme = isHot
+                    ? "bg-red-500/10 text-red-400 border-red-500/30 group-hover:border-red-500/60"
+                    : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 group-hover:border-emerald-500/60";
+                    
+                  const vsTheme = isHot
+                    ? "bg-red-950/50 text-red-400 border-red-800/50 group-hover:text-red-500 group-hover:border-red-500/80"
+                    : "bg-slate-950 text-slate-400 border-slate-700/50 group-hover:text-emerald-500 group-hover:border-emerald-500/50";
 
-                    <div className="flex items-center space-x-4 w-full sm:w-2/5 justify-end z-10">
-                      <span className="font-bold text-lg text-right">{match.home_team}</span>
-                      {match.home_logo ? <img src={match.home_logo} alt={match.home_team} className="w-12 h-12 object-contain drop-shadow-md" /> : <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-xs text-slate-500">Brak</div>}
-                    </div>
-                    
-                    <div className="flex flex-col items-center justify-center px-4 w-full sm:w-1/5 my-4 sm:my-0 z-10">
-                      <span className="text-xs text-slate-400 mb-2 font-medium">{new Date(match.match_date).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}</span>
-                      {['FINISHED', 'IN_PLAY', 'PAUSED'].includes(match.status) ? (
-                        <span className="bg-emerald-500/10 px-4 py-1.5 rounded-xl text-emerald-400 font-black tracking-widest text-lg border border-emerald-500/30 group-hover:border-emerald-500/60 transition-all">
-                          {match.home_score ?? 0} : {match.away_score ?? 0}
+                  return (
+                    <Link key={match.id} href={`/match/${match.id}`} className={`relative rounded-2xl p-6 hover:-translate-y-1 transition-all duration-300 flex flex-col sm:flex-row items-center justify-between group shadow-lg border ${cardTheme}`}>
+                      
+                      {/* --- LIGA I ZNACZNIK VALUEBETU --- */}
+                      <div className="w-full sm:absolute sm:left-6 sm:top-1/2 sm:-translate-y-1/2 sm:w-[20%] text-center sm:text-left mb-4 sm:mb-0 flex flex-col gap-1">
+                        <span className="text-[10px] sm:text-xs text-white font-bold uppercase tracking-widest block truncate">
+                          {match.league}
                         </span>
-                      ) : (
-                        <span className="bg-slate-950 px-4 py-1.5 rounded-xl text-slate-400 font-black tracking-widest text-sm border border-slate-700/50 group-hover:text-emerald-500 group-hover:border-emerald-500/50 transition-all">VS</span>
-                      )}
-                    </div>
+                        {isHot && (
+                          <span className="inline-block text-[10px] font-black text-red-500 bg-red-500/10 border border-red-500/30 px-2 py-0.5 rounded animate-pulse w-fit mx-auto sm:mx-0">
+                            🔥 HOT VALUEBET
+                          </span>
+                        )}
+                      </div>
+                      {/* ------------------------------------ */}
 
-                    <div className="flex items-center space-x-4 w-full sm:w-2/5 justify-start z-10">
-                      {match.away_logo ? <img src={match.away_logo} alt={match.away_team} className="w-12 h-12 object-contain drop-shadow-md" /> : <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-xs text-slate-500">Brak</div>}
-                      <span className="font-bold text-lg text-left">{match.away_team}</span>
-                    </div>
-                  </Link>
-                ))}
+                      <div className="flex items-center space-x-4 w-full sm:w-2/5 justify-end z-10">
+                        <span className="font-bold text-lg text-right">{match.home_team}</span>
+                        {match.home_logo ? <img src={match.home_logo} alt={match.home_team} className="w-12 h-12 object-contain drop-shadow-md" /> : <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-xs text-slate-500">Brak</div>}
+                      </div>
+                      
+                      <div className="flex flex-col items-center justify-center px-4 w-full sm:w-1/5 my-4 sm:my-0 z-10">
+                        <span className="text-xs text-slate-400 mb-2 font-medium">{new Date(match.match_date).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}</span>
+                        {['FINISHED', 'IN_PLAY', 'PAUSED'].includes(match.status) ? (
+                          <span className={`px-4 py-1.5 rounded-xl font-black tracking-widest text-lg border transition-all ${scoreTheme}`}>
+                            {match.home_score ?? 0} : {match.away_score ?? 0}
+                          </span>
+                        ) : (
+                          <span className={`px-4 py-1.5 rounded-xl font-black tracking-widest text-sm border transition-all ${vsTheme}`}>VS</span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center space-x-4 w-full sm:w-2/5 justify-start z-10">
+                        {match.away_logo ? <img src={match.away_logo} alt={match.away_team} className="w-12 h-12 object-contain drop-shadow-md" /> : <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-xs text-slate-500">Brak</div>}
+                        <span className="font-bold text-lg text-left">{match.away_team}</span>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           ))
