@@ -20,11 +20,7 @@ export default function Footer() {
         <p className="mb-3 text-slate-400 font-bold">
           © {new Date().getFullYear()} Sports Platform. Wszelkie prawa zastrzeżone.
         </p>
-        <p className="max-w-2xl mx-auto leading-relaxed text-xs md:text-sm">
-          Serwis ma charakter wyłącznie informacyjny. Nie prowadzimy działalności hazardowej 
-          ani nie przyjmujemy zakładów bukmacherskich. Treści prezentowane na stronie 
-          służą wyłącznie celom statystycznym i rozrywkowym.
-        </p>
+        
       </div>
     </footer>
   );
