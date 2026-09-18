@@ -127,7 +127,7 @@ export default async function HomePage() {
                       {/* --- 4. KONTENER DOLNY (TEKST ANALIZY DLA GOOGLE) --- */}
                       {previewText && (
                         <div className="w-full mt-6 pt-5 border-t border-slate-800/50">
-                          <p className="text-sm text-slate-400 line-clamp-8 leading-relaxed">
+                          <p className="text-sm text-slate-400 line-clamp-[8] leading-relaxed">
                             {previewText}
                           </p>
                           <span className={`text-xs font-bold mt-3 inline-block transition-colors ${isHot ? 'text-red-500 group-hover:text-red-400' : 'text-emerald-500 group-hover:text-emerald-400'}`}>
@@ -143,6 +143,85 @@ export default async function HomePage() {
             </div>
           ))
         )}
+
+        {/* ========================================== */}
+        {/* --- SEKCJA FAQ DLA GOOGLE ADSENSE --- */}
+        {/* ========================================== */}
+        <section className="mt-24 pt-12 border-t border-slate-800/80">
+          <h2 className="text-3xl font-black text-slate-200 mb-8 text-center tracking-wide">
+            Często zadawane pytania (FAQ)
+          </h2>
+          <div className="space-y-4">
+            
+            <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl hover:border-slate-700 transition-colors">
+              <h3 className="text-emerald-400 font-bold text-lg mb-2">Jak działa sztuczna inteligencja na Sports Platform?</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Nasz autorski system opiera się na zaawansowanych modelach językowych, które w czasie rzeczywistym analizują twarde dane z boiska. Zamiast opierać się na intuicji, AI przetwarza informacje o potwierdzonych składach, brakach kadrowych oraz statystykach xG (oczekiwanych goli), dostarczając w 100% obiektywne i matematycznie uzasadnione analizy meczowe.
+              </p>
+            </div>
+
+            <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl hover:border-slate-700 transition-colors">
+              <h3 className="text-emerald-400 font-bold text-lg mb-2">Czym jest "Valuebet" (Gorący Typ) i jak go obliczamy?</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Valuebet to sytuacja, w której nasze algorytmy wyliczają, że prawdopodobieństwo wystąpienia danego zdarzenia jest wyższe, niż sugerują to kursy wystawione przez bukmachera. System mnoży pewność sztucznej inteligencji przez aktualny kurs rynkowy. Jeśli wynik równania matematycznego wykazuje przewagę gracza nad marżą bukmachera, system automatycznie oznacza mecz czerwoną etykietą "🔥 HOT VALUEBET".
+              </p>
+            </div>
+
+            <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl hover:border-slate-700 transition-colors">
+              <h3 className="text-emerald-400 font-bold text-lg mb-2">Czy analizy i statystyki na stronie są darmowe?</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Tak, naszą misją jest dostarczanie najwyższej jakości analiz sportowych bez ukrytych opłat. Wszystkie przedmeczowe typy wynikowe, dostęp do historii sprawdzalności algorytmu oraz głębokie statystyki meczowe są w pełni darmowe dla wszystkich użytkowników naszej platformy.
+              </p>
+            </div>
+
+            <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl hover:border-slate-700 transition-colors">
+              <h3 className="text-emerald-400 font-bold text-lg mb-2">Jak często aktualizowane są mecze w systemie?</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Kalendarz spotkań oraz wyniki na żywo synchronizują się z naszymi serwerami 24 godziny na dobę. Przedmeczowe analizy AI są generowane dynamicznie na podstawie najświeższych doniesień z rynku, dzięki czemu zawsze opierają się na aktualnej sytuacji kadrowej i najnowszych wahaniach kursów bukmacherskich.
+              </p>
+            </div>
+
+          </div>
+        </section>
+
+        {/* ========================================== */}
+        {/* --- STOPKA (FOOTER) Z WYMOGAMI PRAWNYMI --- */}
+        {/* ========================================== */}
+        <footer className="mt-20 pt-10 border-t border-slate-800/80 pb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10 text-center md:text-left">
+            
+            {/* O nas */}
+            <div>
+              <h4 className="text-white font-bold mb-4">Sports Platform</h4>
+              <p className="text-slate-500 text-xs leading-relaxed">
+                Innowacyjne narzędzie analityczne dla fanów sportu. Wykorzystujemy potęgę sztucznej inteligencji, by dostarczać najbardziej precyzyjne prognozy i wykrywać przewagi rynkowe na podstawie twardych danych.
+              </p>
+            </div>
+
+            {/* Linki prawne i nawigacja */}
+            <div className="flex flex-col space-y-2">
+              <h4 className="text-white font-bold mb-2">Nawigacja i regulaminy</h4>
+              <Link href="/privacy-policy" className="text-slate-400 text-sm hover:text-emerald-400 transition-colors">Polityka Prywatności</Link>
+              <Link href="/terms" className="text-slate-400 text-sm hover:text-emerald-400 transition-colors">Regulamin Serwisu</Link>
+              <Link href="/contact" className="text-slate-400 text-sm hover:text-emerald-400 transition-colors">Kontakt z administracją</Link>
+              <Link href="/history" className="text-slate-400 text-sm hover:text-emerald-400 transition-colors">Historia skuteczności</Link>
+            </div>
+
+            {/* Ostrzeżenie (Disclaimer) */}
+            <div>
+              <h4 className="text-white font-bold mb-4">Ważna informacja</h4>
+              <p className="text-slate-500 text-xs leading-relaxed bg-slate-900/50 p-3 rounded-xl border border-slate-800/80">
+                Serwis ma charakter wyłącznie informacyjny i analityczny. Nie namawiamy do hazardu. Zakłady bukmacherskie wiążą się z ryzykiem utraty kapitału. Uczestnictwo w nielegalnych grach hazardowych jest karane. Graj odpowiedzialnie.
+              </p>
+            </div>
+
+          </div>
+
+          <div className="text-xs text-slate-600 text-center border-t border-slate-800/50 pt-6">
+            © {new Date().getFullYear()} Sports Platform. Wszelkie prawa zastrzeżone.
+          </div>
+        </footer>
+
       </div>
     </main>
   );
