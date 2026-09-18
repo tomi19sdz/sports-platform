@@ -127,10 +127,10 @@ export default async function HomePage() {
                       {/* --- 4. KONTENER DOLNY (TEKST ANALIZY DLA GOOGLE) --- */}
                       {previewText && (
                         <div className="w-full mt-6 pt-5 border-t border-slate-800/50">
-                          <p className="text-sm text-slate-400 line-clamp-3 leading-relaxed">
+                          <p className="text-sm text-slate-400 line-clamp-8 leading-relaxed">
                             {previewText}
                           </p>
-                          <span className={`text-xs font-bold mt-7 inline-block transition-colors ${isHot ? 'text-red-500 group-hover:text-red-400' : 'text-emerald-500 group-hover:text-emerald-400'}`}>
+                          <span className={`text-xs font-bold mt-3 inline-block transition-colors ${isHot ? 'text-red-500 group-hover:text-red-400' : 'text-emerald-500 group-hover:text-emerald-400'}`}>
                             Czytaj pełną analizę &rarr;
                           </span>
                         </div>
