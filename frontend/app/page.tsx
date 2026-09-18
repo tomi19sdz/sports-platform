@@ -208,9 +208,6 @@ export default async function HomePage() {
 
           </div>
 
-          <div className="text-xs text-slate-600 text-center border-t border-slate-800/50 pt-6">
-            © {new Date().getFullYear()} Sports Platform. Wszelkie prawa zastrzeżone.
-          </div>
         </footer>
 
       </div>
