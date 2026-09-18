@@ -188,7 +188,7 @@ export default async function HomePage() {
         {/* --- STOPKA (FOOTER) Z WYMOGAMI PRAWNYMI --- */}
         {/* ========================================== */}
         <footer className="mt-20 pt-10 border-t border-slate-800/80 pb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10 text-center md:text-left">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10 text-center md:text-left">
             
             {/* O nas */}
             <div>
@@ -196,15 +196,6 @@ export default async function HomePage() {
               <p className="text-slate-500 text-xs leading-relaxed">
                 Innowacyjne narzędzie analityczne dla fanów sportu. Wykorzystujemy potęgę sztucznej inteligencji, by dostarczać najbardziej precyzyjne prognozy i wykrywać przewagi rynkowe na podstawie twardych danych.
               </p>
-            </div>
-
-            {/* Linki prawne i nawigacja */}
-            <div className="flex flex-col space-y-2">
-              <h4 className="text-white font-bold mb-2">Nawigacja i regulaminy</h4>
-              <Link href="/privacy-policy" className="text-slate-400 text-sm hover:text-emerald-400 transition-colors">Polityka Prywatności</Link>
-              <Link href="/terms" className="text-slate-400 text-sm hover:text-emerald-400 transition-colors">Regulamin Serwisu</Link>
-              <Link href="/contact" className="text-slate-400 text-sm hover:text-emerald-400 transition-colors">Kontakt z administracją</Link>
-              <Link href="/history" className="text-slate-400 text-sm hover:text-emerald-400 transition-colors">Historia skuteczności</Link>
             </div>
 
             {/* Ostrzeżenie (Disclaimer) */}
