@@ -130,7 +130,7 @@ export default async function HomePage() {
                           <p className="text-sm text-slate-400 line-clamp-3 leading-relaxed">
                             {previewText}
                           </p>
-                          <span className={`text-xs font-bold mt-3 inline-block transition-colors ${isHot ? 'text-red-500 group-hover:text-red-400' : 'text-emerald-500 group-hover:text-emerald-400'}`}>
+                          <span className={`text-xs font-bold mt-7 inline-block transition-colors ${isHot ? 'text-red-500 group-hover:text-red-400' : 'text-emerald-500 group-hover:text-emerald-400'}`}>
                             Czytaj pełną analizę &rarr;
                           </span>
                         </div>
