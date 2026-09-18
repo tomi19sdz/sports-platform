@@ -1,6 +1,12 @@
 import Link from 'next/link';
 import React from 'react';
 
+// 1. Dodany interfejs dla analiz
+interface Analysis {
+  id: number;
+  content: string;
+}
+
 interface Match {
   id: number;
   home_team: string;
@@ -12,7 +18,8 @@ interface Match {
   home_score: number | null;
   away_score: number | null;
   status: string;
-  is_valuebet?: boolean; // Dodane, aby wyłapywać gorące mecze z backendu
+  is_valuebet?: boolean;
+  analyses?: Analysis[]; // 2. Dodane pole analyses
 }
 
 async function getMatches() {
@@ -37,14 +44,12 @@ export default async function HomePage() {
             Sports <span className="text-emerald-500">Platform</span>
           </h1>
           
-          {/* --- DODANY TEKST SEO DLA GOOGLE ADSENSE I INDEKSOWANIA --- */}
           <div className="max-w-3xl mx-auto mb-10 text-center">
             <p className="text-slate-400 leading-relaxed text-lg">
               Witaj na <strong className="text-emerald-400 font-semibold">Sports Platform</strong> – Twoim niezawodnym źródle zaawansowanych statystyk sportowych i przedmeczowych analiz. 
               Nasz autorski system oparty na sztucznej inteligencji na bieżąco monitoruje kontuzje, realną formę zespołów oraz rynkowe kursy, dostarczając Ci najbardziej prawdopodobne typy i dokładne wyniki. Śledź na żywo zmagania najlepszych lig i podejmuj świadome decyzje na podstawie twardych danych.
             </p>
           </div>
-          {/* -------------------------------------------------------- */}
         </header>
 
         {upcomingMatches.length === 0 ? (
@@ -64,12 +69,10 @@ export default async function HomePage() {
                 {matches.map((match) => {
                   const isHot = match.is_valuebet;
                   
-                  // Dynamiczne style dla głównego kafelka
                   const cardTheme = isHot 
                     ? "bg-red-950/10 border-red-900/60 hover:border-red-500 hover:bg-red-900/30 shadow-[0_0_15px_rgba(239,68,68,0.15)]" 
                     : "bg-slate-900/40 border-slate-800/80 hover:border-emerald-500/50 hover:bg-slate-800/60 shadow-black/20";
                     
-                  // Dynamiczne style dla sekcji z wynikiem / "VS"
                   const scoreTheme = isHot
                     ? "bg-red-500/10 text-red-400 border-red-500/30 group-hover:border-red-500/60"
                     : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 group-hover:border-emerald-500/60";
@@ -78,42 +81,61 @@ export default async function HomePage() {
                     ? "bg-red-950/50 text-red-400 border-red-800/50 group-hover:text-red-500 group-hover:border-red-500/80"
                     : "bg-slate-950 text-slate-400 border-slate-700/50 group-hover:text-emerald-500 group-hover:border-emerald-500/50";
 
+                  // 3. Wyciąganie tekstu analizy (z odcięciem bloku technicznego)
+                  const previewText = match.analyses && match.analyses.length > 0 
+                    ? match.analyses[0].content.split('[DANE_SYSTEMU]')[0] 
+                    : null;
+
                   return (
-                    <Link key={match.id} href={`/match/${match.id}`} className={`relative rounded-2xl p-6 hover:-translate-y-1 transition-all duration-300 flex flex-col sm:flex-row items-center justify-between group shadow-lg border ${cardTheme}`}>
+                    <Link key={match.id} href={`/match/${match.id}`} className={`relative rounded-2xl p-6 hover:-translate-y-1 transition-all duration-300 flex flex-col group shadow-lg border ${cardTheme}`}>
                       
-                      {/* --- LIGA I ZNACZNIK VALUEBETU --- */}
-                      <div className="w-full sm:absolute sm:left-6 sm:top-1/2 sm:-translate-y-1/2 sm:w-[20%] text-center sm:text-left mb-4 sm:mb-0 flex flex-col gap-1">
-                        <span className="text-[10px] sm:text-xs text-white font-bold uppercase tracking-widest block truncate">
-                          {match.league}
-                        </span>
-                        {isHot && (
-                          <span className="inline-block text-[10px] font-black text-red-500 bg-red-500/10 border border-red-500/30 px-2 py-0.5 rounded animate-pulse w-fit mx-auto sm:mx-0">
-                            🔥 HOT VALUEBET
+                      {/* --- KONTENER GÓRNY (DRUŻYNY I WYNIK) --- */}
+                      <div className="flex flex-col sm:flex-row items-center justify-between w-full">
+                        <div className="w-full sm:absolute sm:left-6 sm:top-6 sm:w-[20%] text-center sm:text-left mb-4 sm:mb-0 flex flex-col gap-1">
+                          <span className="text-[10px] sm:text-xs text-white font-bold uppercase tracking-widest block truncate">
+                            {match.league}
                           </span>
-                        )}
-                      </div>
-                      {/* ------------------------------------ */}
+                          {isHot && (
+                            <span className="inline-block text-[10px] font-black text-red-500 bg-red-500/10 border border-red-500/30 px-2 py-0.5 rounded animate-pulse w-fit mx-auto sm:mx-0">
+                              🔥 HOT VALUEBET
+                            </span>
+                          )}
+                        </div>
 
-                      <div className="flex items-center space-x-4 w-full sm:w-2/5 justify-end z-10">
-                        <span className="font-bold text-lg text-right">{match.home_team}</span>
-                        {match.home_logo ? <img src={match.home_logo} alt={match.home_team} className="w-12 h-12 object-contain drop-shadow-md" /> : <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-xs text-slate-500">Brak</div>}
+                        <div className="flex items-center space-x-4 w-full sm:w-2/5 justify-end z-10 mt-4 sm:mt-0">
+                          <span className="font-bold text-lg text-right">{match.home_team}</span>
+                          {match.home_logo ? <img src={match.home_logo} alt={match.home_team} className="w-12 h-12 object-contain drop-shadow-md" /> : <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-xs text-slate-500">Brak</div>}
+                        </div>
+                        
+                        <div className="flex flex-col items-center justify-center px-4 w-full sm:w-1/5 my-4 sm:my-0 z-10">
+                          <span className="text-xs text-slate-400 mb-2 font-medium">{new Date(match.match_date).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}</span>
+                          {['FINISHED', 'IN_PLAY', 'PAUSED'].includes(match.status) ? (
+                            <span className={`px-4 py-1.5 rounded-xl font-black tracking-widest text-lg border transition-all ${scoreTheme}`}>
+                              {match.home_score ?? 0} : {match.away_score ?? 0}
+                            </span>
+                          ) : (
+                            <span className={`px-4 py-1.5 rounded-xl font-black tracking-widest text-sm border transition-all ${vsTheme}`}>VS</span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center space-x-4 w-full sm:w-2/5 justify-start z-10">
+                          {match.away_logo ? <img src={match.away_logo} alt={match.away_team} className="w-12 h-12 object-contain drop-shadow-md" /> : <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-xs text-slate-500">Brak</div>}
+                          <span className="font-bold text-lg text-left">{match.away_team}</span>
+                        </div>
                       </div>
-                      
-                      <div className="flex flex-col items-center justify-center px-4 w-full sm:w-1/5 my-4 sm:my-0 z-10">
-                        <span className="text-xs text-slate-400 mb-2 font-medium">{new Date(match.match_date).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}</span>
-                        {['FINISHED', 'IN_PLAY', 'PAUSED'].includes(match.status) ? (
-                          <span className={`px-4 py-1.5 rounded-xl font-black tracking-widest text-lg border transition-all ${scoreTheme}`}>
-                            {match.home_score ?? 0} : {match.away_score ?? 0}
+
+                      {/* --- 4. KONTENER DOLNY (TEKST ANALIZY DLA GOOGLE) --- */}
+                      {previewText && (
+                        <div className="w-full mt-6 pt-5 border-t border-slate-800/50">
+                          <p className="text-sm text-slate-400 line-clamp-3 leading-relaxed">
+                            {previewText}
+                          </p>
+                          <span className={`text-xs font-bold mt-3 inline-block transition-colors ${isHot ? 'text-red-500 group-hover:text-red-400' : 'text-emerald-500 group-hover:text-emerald-400'}`}>
+                            Czytaj pełną analizę &rarr;
                           </span>
-                        ) : (
-                          <span className={`px-4 py-1.5 rounded-xl font-black tracking-widest text-sm border transition-all ${vsTheme}`}>VS</span>
-                        )}
-                      </div>
+                        </div>
+                      )}
 
-                      <div className="flex items-center space-x-4 w-full sm:w-2/5 justify-start z-10">
-                        {match.away_logo ? <img src={match.away_logo} alt={match.away_team} className="w-12 h-12 object-contain drop-shadow-md" /> : <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-xs text-slate-500">Brak</div>}
-                        <span className="font-bold text-lg text-left">{match.away_team}</span>
-                      </div>
                     </Link>
                   );
                 })}
