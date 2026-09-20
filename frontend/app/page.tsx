@@ -33,10 +33,13 @@ async function getMatches() {
 export default async function HomePage() {
   const groupedMatches = await getMatches();
   
-  // Przesunięcie "północy" na godzinę 11:00 rano
-  const cutoffDate = new Date();
-  cutoffDate.setHours(cutoffDate.getHours() - 11);
-  const todayStr = cutoffDate.toISOString().split('T')[0];
+  // Wymuszenie czasu polskiego dla poprawnego przeskoku daty
+  const warsawTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Warsaw" }));
+  warsawTime.setHours(warsawTime.getHours() - 11);
+  const year = warsawTime.getFullYear();
+  const month = String(warsawTime.getMonth() + 1).padStart(2, '0');
+  const day = String(warsawTime.getDate()).padStart(2, '0');
+  const todayStr = `${year}-${month}-${day}`;
 
   const upcomingMatches = Object.entries(groupedMatches).filter(([date]) => date >= todayStr);
 
@@ -112,7 +115,10 @@ export default async function HomePage() {
                         </div>
                         
                         <div className="flex flex-col items-center justify-center px-4 w-full sm:w-1/5 my-4 sm:my-0 z-10">
-                          <span className="text-xs text-slate-400 mb-2 font-medium">{new Date(match.match_date).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}</span>
+                          {/* DODANY PARAMETR timeZone DLA GODZIN MECZÓW */}
+                          <span className="text-xs text-slate-400 mb-2 font-medium">
+                            {new Date(match.match_date).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Warsaw' })}
+                          </span>
                           {['FINISHED', 'IN_PLAY', 'PAUSED'].includes(match.status) ? (
                             <span className={`px-4 py-1.5 rounded-xl font-black tracking-widest text-lg border transition-all ${scoreTheme}`}>
                               {match.home_score ?? 0} : {match.away_score ?? 0}
