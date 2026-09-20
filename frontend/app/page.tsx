@@ -33,7 +33,11 @@ async function getMatches() {
 export default async function HomePage() {
   const groupedMatches = await getMatches();
   
-  const todayStr = new Date().toISOString().split('T')[0];
+  // Przesunięcie "północy" na godzinę 11:00 rano
+  const cutoffDate = new Date();
+  cutoffDate.setHours(cutoffDate.getHours() - 11);
+  const todayStr = cutoffDate.toISOString().split('T')[0];
+
   const upcomingMatches = Object.entries(groupedMatches).filter(([date]) => date >= todayStr);
 
   return (
