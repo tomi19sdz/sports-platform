@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import React from 'react';
 
+// --- DODANO: Wymuszenie wersji dynamicznej (rozwiązuje problem z botami i ChatGPT) ---
+export const dynamic = 'force-dynamic';
+
 // 1. Dodany interfejs dla analiz
 interface Analysis {
   id: number;
@@ -24,7 +27,7 @@ interface Match {
 
 async function getMatches() {
   const res = await fetch('https://tomi19sdz.pythonanywhere.com/api/matches/', {
-    next: { revalidate: 60 } 
+    cache: 'no-store' // --- DODANO: Zmusza do pobrania świeżych danych przy KAŻDYM wejściu ---
   });
   if (!res.ok) return {};
   return res.json() as Promise<Record<string, Match[]>>;
@@ -88,7 +91,6 @@ export default async function HomePage() {
                     ? "bg-red-950/50 text-red-400 border-red-800/50 group-hover:text-red-500 group-hover:border-red-500/80"
                     : "bg-slate-950 text-slate-400 border-slate-700/50 group-hover:text-emerald-500 group-hover:border-emerald-500/50";
 
-                  // 3. Wyciąganie tekstu analizy (z odcięciem bloku technicznego)
                   const previewText = match.analyses && match.analyses.length > 0 
                     ? match.analyses[0].content.split('[DANE_SYSTEMU]')[0] 
                     : null;
@@ -96,7 +98,6 @@ export default async function HomePage() {
                   return (
                     <Link key={match.id} href={`/match/${match.id}`} className={`relative rounded-2xl p-6 hover:-translate-y-1 transition-all duration-300 flex flex-col group shadow-lg border ${cardTheme}`}>
                       
-                      {/* --- KONTENER GÓRNY (DRUŻYNY I WYNIK) --- */}
                       <div className="flex flex-col sm:flex-row items-center justify-between w-full">
                         <div className="w-full sm:absolute sm:left-6 sm:top-6 sm:w-[20%] text-center sm:text-left mb-4 sm:mb-0 flex flex-col gap-1">
                           <span className="text-[10px] sm:text-xs text-white font-bold uppercase tracking-widest block truncate">
@@ -115,7 +116,6 @@ export default async function HomePage() {
                         </div>
                         
                         <div className="flex flex-col items-center justify-center px-4 w-full sm:w-1/5 my-4 sm:my-0 z-10">
-                          {/* DODANY PARAMETR timeZone DLA GODZIN MECZÓW */}
                           <span className="text-xs text-slate-400 mb-2 font-medium">
                             {new Date(match.match_date).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Warsaw' })}
                           </span>
@@ -134,7 +134,6 @@ export default async function HomePage() {
                         </div>
                       </div>
 
-                      {/* --- 4. KONTENER DOLNY (TEKST ANALIZY DLA GOOGLE) --- */}
                       {previewText && (
                         <div className="w-full mt-6 pt-5 border-t border-slate-800/50">
                           <p className="text-sm text-slate-400 line-clamp-[8] leading-relaxed">
@@ -154,9 +153,6 @@ export default async function HomePage() {
           ))
         )}
 
-        {/* ========================================== */}
-        {/* --- SEKCJA FAQ DLA GOOGLE ADSENSE --- */}
-        {/* ========================================== */}
         <section className="mt-24 pt-12 border-t border-slate-800/80">
           <h2 className="text-3xl font-black text-slate-200 mb-8 text-center tracking-wide">
             Często zadawane pytania (FAQ)
@@ -194,13 +190,8 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* ========================================== */}
-        {/* --- STOPKA (FOOTER) Z WYMOGAMI PRAWNYMI --- */}
-        {/* ========================================== */}
         <footer className="mt-20 pt-10 border-t border-slate-800/80 pb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10 text-center md:text-left">
-            
-            {/* O nas */}
             <div>
               <h4 className="text-white font-bold mb-4">Sports Platform</h4>
               <p className="text-slate-500 text-xs leading-relaxed">
@@ -208,16 +199,13 @@ export default async function HomePage() {
               </p>
             </div>
 
-            {/* Ostrzeżenie (Disclaimer) */}
             <div>
               <h4 className="text-white font-bold mb-4">Ważna informacja</h4>
               <p className="text-slate-500 text-xs leading-relaxed bg-slate-900/50 p-3 rounded-xl border border-slate-800/80">
                 Serwis ma charakter wyłącznie informacyjny i analityczny. Nie namawiamy do hazardu. Zakłady bukmacherskie wiążą się z ryzykiem utraty kapitału. Uczestnictwo w nielegalnych grach hazardowych jest karane. Graj odpowiedzialnie.
               </p>
             </div>
-
           </div>
-
         </footer>
 
       </div>
