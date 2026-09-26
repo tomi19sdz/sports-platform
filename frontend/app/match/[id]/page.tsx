@@ -31,19 +31,24 @@ async function getMatch(id: string): Promise<Match> {
   return res.json();
 }
 
-// NOWA FUNKCJA: Pobieranie najświeższych wiadomości z Google News (bez kluczy API)
+// ZAKTUALIZOWANA FUNKCJA: Pobieranie wiadomości (z operatorem OR)
 async function getNews(homeTeam: string, awayTeam: string): Promise<NewsItem[]> {
   try {
-    const query = encodeURIComponent(`${homeTeam} ${awayTeam} piłka nożna`);
+    // Używamy operatora "OR", co oznacza "znajdź newsy o drużynie A LUB drużynie B"
+    // Dodajemy "piłka nożna" żeby uniknąć np. newsów o państwach (polityce) zamiast sporcie.
+    const query = encodeURIComponent(`("${homeTeam}" OR "${awayTeam}") "piłka nożna"`);
+    
+    // Szukamy w polskim Google News
     const rssUrl = `https://news.google.com/rss/search?q=${query}&hl=pl&gl=PL&ceid=PL:pl`;
-    // Używamy darmowego konwertera rss2json, żeby łatwo odczytać dane z Google News
+    
+    // Konwerter rss2json
     const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`, { 
-      next: { revalidate: 3600 } // Odświeżaj newsy co godzinę
+      next: { revalidate: 3600 } 
     });
     
     if (!res.ok) return [];
     const data = await res.json();
-    return data.items ? data.items.slice(0, 3) : []; // Bierzemy tylko 3 najnowsze
+    return data.items ? data.items.slice(0, 3) : []; // Zwracamy 3 najnowsze
   } catch (error) {
     console.error("Błąd pobierania wiadomości:", error);
     return [];
@@ -155,7 +160,6 @@ export default async function MatchPage({ params }: { params: Promise<{ id: stri
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {newsList.map((news, index) => {
-                  // Wyciągamy źródło i krótką datę
                   const date = new Date(news.pubDate).toLocaleDateString('pl-PL', { day: '2-digit', month: 'short' });
                   return (
                     <a 
