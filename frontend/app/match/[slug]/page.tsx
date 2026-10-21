@@ -25,8 +25,8 @@ interface NewsItem {
   pubDate: string;
 }
 
-async function getMatch(id: string): Promise<Match> {
-  const res = await fetch(`https://tomi19sdz.pythonanywhere.com/api/matches/${id}/`, { cache: 'no-store' });
+async function getMatch(slug: string): Promise<Match> {
+  const res = await fetch(`https://tomi19sdz.pythonanywhere.com/api/matches/${slug}/`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Błąd pobierania meczu');
   return res.json();
 }
