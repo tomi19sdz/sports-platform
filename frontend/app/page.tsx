@@ -96,7 +96,7 @@ export default async function HomePage() {
                     : null;
 
                   return (
-                    <Link key={match.id} href={`/match/${match.id}`} className={`relative rounded-2xl p-6 hover:-translate-y-1 transition-all duration-300 flex flex-col group shadow-lg border ${cardTheme}`}>
+                    <Link key={match.id} href={`/match/${match.slug}`} className={`relative rounded-2xl p-6 hover:-translate-y-1 transition-all duration-300 flex flex-col group shadow-lg border ${cardTheme}`}>
                       
                       <div className="flex flex-col sm:flex-row items-center justify-between w-full">
                         <div className="w-full sm:absolute sm:left-6 sm:top-6 sm:w-[20%] text-center sm:text-left mb-4 sm:mb-0 flex flex-col gap-1">
