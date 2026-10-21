@@ -13,7 +13,7 @@ export default function ContactPage() {
           <h2 className="text-2xl font-bold text-emerald-400 mb-4">Napisz do nas</h2>
           <p className="text-slate-300 mb-2">Adres e-mail:</p>
           <a href="mailto:kontakt@twojadomena.pl" className="text-xl font-bold text-white hover:text-emerald-400 transition-colors">
-            kontakt@twojadomena.pl
+            kontaktsportsplatform@gmail.com
           </a>
           <p className="text-slate-500 mt-6 text-sm">
             Staramy się odpowiadać na wszystkie zapytania w ciągu 24-48 godzin.
