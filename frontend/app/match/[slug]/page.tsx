@@ -55,9 +55,9 @@ async function getNews(homeTeam: string, awayTeam: string): Promise<NewsItem[]> 
   }
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { id } = await params;
-  const match = await getMatch(id);
+  const match = await getMatch(slug);
 
   return {
     title: `${match.home_team} vs ${match.away_team} | Sports Platform`,
