@@ -12,6 +12,7 @@ interface Analysis {
 
 interface Match {
   id: number;
+  slug: string;
   home_team: string;
   away_team: string;
   league: string;
