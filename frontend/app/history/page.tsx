@@ -6,6 +6,7 @@ export const revalidate = 0;
 
 interface Match {
   id: number;
+  slug: string;
   home_team: string;
   away_team: string;
   league: string;
@@ -204,7 +205,7 @@ export default async function HistoryPage({ searchParams }: any) {
                     : "bg-slate-900/40 border-slate-800/80 hover:border-slate-500/50 hover:bg-slate-800/60 shadow-black/20";
 
                   return (
-                    <Link key={match.id} href={`/match/${match.id}`} className={`relative rounded-2xl p-6 transition-all duration-300 flex flex-col sm:flex-row items-center justify-between group border ${cardTheme}`}>
+                    <Link key={match.id} href={`/match/${match.slug}`} className={`relative rounded-2xl p-6 transition-all duration-300 flex flex-col sm:flex-row items-center justify-between group border ${cardTheme}`}>
                       
                       <div className="w-full sm:absolute sm:left-6 sm:top-1/2 sm:-translate-y-1/2 sm:w-[20%] text-center sm:text-left mb-4 sm:mb-0 flex flex-col gap-1">
                         <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-widest block truncate ${isHot ? 'text-slate-300' : 'text-slate-500'}`}>
