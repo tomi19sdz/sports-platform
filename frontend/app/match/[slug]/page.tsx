@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title: `${match.home_team} vs ${match.away_team}`,
       description: `Analiza i wideo z meczu ${match.home_team} - ${match.away_team}`,
-      url: `https://sportsplatform.pl/match/${id}`,
+      url: `https://sportsplatform.pl/match/${slug}`,
       type: 'website',
       siteName: 'Sports Platform',
     },
