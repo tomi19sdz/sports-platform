@@ -57,7 +57,7 @@ async function getNews(homeTeam: string, awayTeam: string): Promise<NewsItem[]> 
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { id } = await params;
+  const { slug } = await params;
   const match = await getMatch(slug);
 
   return {
