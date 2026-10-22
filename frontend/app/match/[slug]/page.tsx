@@ -7,6 +7,7 @@ interface Video { id: number; video_url: string; }
 interface Analysis { id: number; content: string; }
 interface Match {
   id: number;
+  slug: string;
   home_team: string;
   away_team: string;
   league: string;
@@ -77,11 +78,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function MatchPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function MatchPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   
   // Pobieramy dane meczu i najświeższe newsy jednocześnie
-  const match = await getMatch(id);
+  const match = await getMatch(slug);
   const newsList = await getNews(match.home_team, match.away_team);
 
   // Dynamiczne style dla głównego kontenera i nagłówka
