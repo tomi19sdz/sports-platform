@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar"; // <-- Twój poprawny import
+import Navbar from "@/components/Navbar";
+import CookieBanner from "@/components/CookieBanner"; // <-- DODANY IMPORT BANERA
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,6 +36,8 @@ export default function RootLayout({
         </div>
         
         <Footer />
+        
+        <CookieBanner /> {/* <-- DODANY KOMPONENT BANERA */}
       </body>
     </html>
   );
