@@ -58,7 +58,7 @@ export default async function HomePage() {
           <div className="max-w-3xl mx-auto mb-10 text-center">
             <p className="text-slate-400 leading-relaxed text-lg">
               Witaj na <strong className="text-emerald-400 font-semibold">Sports Platform</strong> – Twoim niezawodnym źródle zaawansowanych statystyk sportowych i przedmeczowych analiz. 
-              Nasz autorski system oparty na sztucznej inteligencji na bieżąco monitoruje kontuzje, realną formę zespołów oraz rynkowe kursy, dostarczając Ci najbardziej prawdopodobne typy i dokładne wyniki. Śledź na żywo zmagania najlepszych lig i podejmuj świadome decyzje na podstawie twardych danych.
+              Nasz autorski system oparty na sztucznej inteligencji na bieżąco monitoruje kontuzje, realną formę zespołów oraz dane historyczne, dostarczając Ci szczegółowe prognozy i statystyczne prawdopodobieństwo zdarzeń. Śledź na żywo zmagania najlepszych lig i podejmuj świadome decyzje na podstawie twardych danych.
             </p>
           </div>
         </header>
@@ -106,7 +106,7 @@ export default async function HomePage() {
                           </span>
                           {isHot && (
                             <span className="inline-block text-[10px] font-black text-red-500 bg-red-500/10 border border-red-500/30 px-2 py-0.5 rounded animate-pulse w-fit mx-auto sm:mx-0">
-                              🔥 HOT VALUEBET
+                              🔥 WYSOKA PEWNOŚĆ
                             </span>
                           )}
                         </div>
@@ -168,23 +168,23 @@ export default async function HomePage() {
             </div>
 
             <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl hover:border-slate-700 transition-colors">
-              <h3 className="text-emerald-400 font-bold text-lg mb-2">Czym jest "Valuebet" (Gorący Typ) i jak go obliczamy?</h3>
+              <h3 className="text-emerald-400 font-bold text-lg mb-2">Czym jest "Wysoka Pewność" i jak ją obliczamy?</h3>
               <p className="text-slate-400 text-sm leading-relaxed">
-                Valuebet to sytuacja, w której nasze algorytmy wyliczają, że prawdopodobieństwo wystąpienia danego zdarzenia jest wyższe, niż sugerują to kursy wystawione przez bukmachera. System mnoży pewność sztucznej inteligencji przez aktualny kurs rynkowy. Jeśli wynik równania matematycznego wykazuje przewagę gracza nad marżą bukmachera, system automatycznie oznacza mecz czerwoną etykietą "🔥 HOT VALUEBET".
+                To sytuacja, w której nasze algorytmy wyliczają wybitnie wysokie statystyczne prawdopodobieństwo wystąpienia danego zdarzenia, bazując na zaawansowanych modelach matematycznych. System weryfikuje pewność sztucznej inteligencji, a jeśli przekracza ona próg naszych rygorystycznych kryteriów analitycznych, automatycznie wyróżnia mecz czerwoną etykietą "🔥 WYSOKA PEWNOŚĆ".
               </p>
             </div>
 
             <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl hover:border-slate-700 transition-colors">
               <h3 className="text-emerald-400 font-bold text-lg mb-2">Czy analizy i statystyki na stronie są darmowe?</h3>
               <p className="text-slate-400 text-sm leading-relaxed">
-                Tak, naszą misją jest dostarczanie najwyższej jakości analiz sportowych bez ukrytych opłat. Wszystkie przedmeczowe typy wynikowe, dostęp do historii sprawdzalności algorytmu oraz głębokie statystyki meczowe są w pełni darmowe dla wszystkich użytkowników naszej platformy.
+                Tak, naszą misją jest dostarczanie najwyższej jakości analiz sportowych bez ukrytych opłat. Wszystkie przedmeczowe prognozy, dostęp do historii sprawdzalności algorytmu oraz głębokie statystyki meczowe są w pełni darmowe dla wszystkich użytkowników naszej platformy.
               </p>
             </div>
 
             <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl hover:border-slate-700 transition-colors">
               <h3 className="text-emerald-400 font-bold text-lg mb-2">Jak często aktualizowane są mecze w systemie?</h3>
               <p className="text-slate-400 text-sm leading-relaxed">
-                Kalendarz spotkań oraz wyniki na żywo synchronizują się z naszymi serwerami 24 godziny na dobę. Przedmeczowe analizy AI są generowane dynamicznie na podstawie najświeższych doniesień z rynku, dzięki czemu zawsze opierają się na aktualnej sytuacji kadrowej i najnowszych wahaniach kursów bukmacherskich.
+                Kalendarz spotkań oraz wyniki na żywo synchronizują się z naszymi serwerami 24 godziny na dobę. Przedmeczowe analizy AI są generowane dynamicznie na podstawie najświeższych doniesień, dzięki czemu zawsze opierają się na aktualnej sytuacji kadrowej i najnowszych trendach statystycznych.
               </p>
             </div>
 
@@ -196,14 +196,14 @@ export default async function HomePage() {
             <div>
               <h4 className="text-white font-bold mb-4">Sports Platform</h4>
               <p className="text-slate-500 text-xs leading-relaxed">
-                Innowacyjne narzędzie analityczne dla fanów sportu. Wykorzystujemy potęgę sztucznej inteligencji, by dostarczać najbardziej precyzyjne prognozy i wykrywać przewagi rynkowe na podstawie twardych danych.
+                Innowacyjne narzędzie analityczne dla fanów sportu. Wykorzystujemy potęgę sztucznej inteligencji, by dostarczać najbardziej precyzyjne prognozy rynkowe na podstawie twardych danych.
               </p>
             </div>
 
             <div>
               <h4 className="text-white font-bold mb-4">Ważna informacja</h4>
               <p className="text-slate-500 text-xs leading-relaxed bg-slate-900/50 p-3 rounded-xl border border-slate-800/80">
-                Serwis ma charakter wyłącznie informacyjny i analityczny. Nie namawiamy do hazardu. Zakłady bukmacherskie wiążą się z ryzykiem utraty kapitału. Uczestnictwo w nielegalnych grach hazardowych jest karane. Graj odpowiedzialnie.
+                Serwis ma charakter wyłącznie informacyjny i statystyczny. Prezentowane dane opierają się na modelach matematycznych i nie stanowią porady finansowej ani zachęty do udziału w grach losowych. Naszym celem jest edukacja i dostarczanie rzetelnych analiz sportowych.
               </p>
             </div>
           </div>
