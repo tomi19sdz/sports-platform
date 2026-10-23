@@ -11,6 +11,9 @@ export default function Footer() {
           <Link href="/polityka-prywatnosci" className="hover:text-emerald-400 transition-colors font-medium">
             Polityka Prywatności
           </Link>
+          <Link href="/regulamin" className="hover:text-emerald-400 transition-colors font-medium">
+            Regulamin
+          </Link>
           <Link href="/kontakt" className="hover:text-emerald-400 transition-colors font-medium">
             Kontakt
           </Link>
