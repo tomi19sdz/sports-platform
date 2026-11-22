@@ -137,7 +137,7 @@ export default function MatchTabs({ matchId, league, videos, analyses: initialAn
   return (
     <>
       <div className={`${themeColorText} ${isHotBet ? 'drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]' : ''} font-bold mb-4 text-center text-lg uppercase tracking-wider transition-colors duration-500`}>
-        {league} {isHotBet && '🔥 GORĄCY VALUEBET 🔥'}
+        {league} {isHotBet && '🔥 WYSOKA PEWNOŚĆ 🔥'}
       </div>
 
       <div className="flex border-b border-slate-800 mb-8 overflow-x-auto">

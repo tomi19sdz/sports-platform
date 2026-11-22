@@ -114,10 +114,10 @@ export default async function MatchPage({ params }: { params: Promise<{ slug: st
             {match.home_team} <span className={`mx-3 ${vsStyle}`}>VS</span> {match.away_team}
           </h1>
 
-          {/* --- WIZUALIZACJA VALUEBET I PEWNOŚCI AI --- */}
+          {/* --- WIZUALIZACJA PEWNOŚCI MODELU --- */}
           <div className={`flex flex-col items-center justify-center gap-3 mb-8 p-6 rounded-2xl border max-w-md mx-auto shadow-inner transition-colors duration-500 ${isHot ? 'bg-red-950/20 border-red-900/50' : 'bg-slate-950/50 border-slate-800/80'}`}>
             <div className="flex items-center gap-4 w-full">
-              <span className="text-sm font-bold text-slate-400 whitespace-nowrap">Pewność AI:</span>
+              <span className="text-sm font-bold text-slate-400 whitespace-nowrap">Pewność modelu:</span>
               <div className="flex-1 bg-slate-800/80 rounded-full h-3 overflow-hidden border border-slate-700/50">
                 <div 
                   className={`${isHot ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.6)]' : 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]'} h-full rounded-full transition-all duration-1000`} 
@@ -131,7 +131,7 @@ export default async function MatchPage({ params }: { params: Promise<{ slug: st
 
             {isHot && (
               <div className="mt-3 inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-black bg-red-500/10 text-red-500 border border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.3)] animate-pulse">
-                🔥 VALUEBET WYKRYTY: +{match.value_percentage}%
+                🔥 WYSOKA PEWNOŚĆ MODELU
               </div>
             )}
           </div>
