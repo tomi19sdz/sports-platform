@@ -161,30 +161,37 @@ export default async function HomePage() {
           <div className="space-y-4">
             
             <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl hover:border-slate-700 transition-colors">
-              <h3 className="text-emerald-400 font-bold text-lg mb-2">Jak działa sztuczna inteligencja na Sports Platform?</h3>
+              <h3 className="text-emerald-400 font-bold text-lg mb-2">Jak powstają prognozy na Sports Platform?</h3>
               <p className="text-slate-400 text-sm leading-relaxed">
-                Nasz autorski system opiera się na zaawansowanych modelach językowych, które w czasie rzeczywistym analizują twarde dane z boiska. Zamiast opierać się na intuicji, AI przetwarza informacje o potwierdzonych składach, brakach kadrowych oraz statystykach xG (oczekiwanych goli), dostarczając w 100% obiektywne i matematycznie uzasadnione analizy meczowe.
+                Prognozy powstają w dwóch krokach. Najpierw model statystyczny (rozkład Poissona z poprawką Dixona-Colesa) ocenia siłę ataku i obrony każdej drużyny na podstawie wyników wszystkich meczów bieżącego sezonu, osobno u siebie i na wyjeździe, z większą wagą dla ostatnich spotkań. Na tej podstawie wylicza prawdopodobieństwo wygranej, remisu i porażki. Następnie sztuczna inteligencja przygotowuje opisową analizę meczu, uwzględniając aktualne informacje o formie i absencjach. Wniosek końcowy zawsze pochodzi z modelu statystycznego, a nie z tekstu AI.
               </p>
             </div>
 
             <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl hover:border-slate-700 transition-colors">
-              <h3 className="text-emerald-400 font-bold text-lg mb-2">Czym jest "Wysoka Pewność" i jak ją obliczamy?</h3>
+              <h3 className="text-emerald-400 font-bold text-lg mb-2">Czym jest "Wysoka Pewność"?</h3>
               <p className="text-slate-400 text-sm leading-relaxed">
-                To sytuacja, w której nasze algorytmy wyliczają wybitnie wysokie statystyczne prawdopodobieństwo wystąpienia danego zdarzenia, bazując na zaawansowanych modelach matematycznych. System weryfikuje pewność sztucznej inteligencji, a jeśli przekracza ona próg naszych rygorystycznych kryteriów analitycznych, automatycznie wyróżnia mecz czerwoną etykietą "🔥 WYSOKA PEWNOŚĆ".
+                Etykietę "🔥 WYSOKA PEWNOŚĆ" otrzymują mecze, w których model statystyczny przypisuje wskazanemu scenariuszowi wyraźnie wysokie prawdopodobieństwo. Wysoka pewność nie oznacza pewności wyniku - nawet scenariusz z prawdopodobieństwem 75% nie sprawdza się średnio w co czwartym meczu. Gdy model nie widzi wyraźnej przewagi żadnego scenariusza, analiza zostaje opublikowana bez wskazania prognozy.
               </p>
             </div>
 
             <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl hover:border-slate-700 transition-colors">
-              <h3 className="text-emerald-400 font-bold text-lg mb-2">Czy analizy i statystyki na stronie są darmowe?</h3>
+              <h3 className="text-emerald-400 font-bold text-lg mb-2">Jak sprawdzić skuteczność prognoz?</h3>
               <p className="text-slate-400 text-sm leading-relaxed">
-                Tak, naszą misją jest dostarczanie najwyższej jakości analiz sportowych bez ukrytych opłat. Wszystkie przedmeczowe prognozy, dostęp do historii sprawdzalności algorytmu oraz głębokie statystyki meczowe są w pełni darmowe dla wszystkich użytkowników naszej platformy.
+                Każda prognoza jest automatycznie rozliczana po zakończeniu meczu na podstawie oficjalnego wyniku. Wszystkie rozliczone prognozy, zarówno trafne, jak i błędne, można przejrzeć w zakładce Historia z podziałem na ligi i miesiące. Nie usuwamy ani nie poprawiamy nietrafionych prognoz.
               </p>
             </div>
 
             <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl hover:border-slate-700 transition-colors">
-              <h3 className="text-emerald-400 font-bold text-lg mb-2">Jak często aktualizowane są mecze w systemie?</h3>
+              <h3 className="text-emerald-400 font-bold text-lg mb-2">Które rozgrywki obejmuje model?</h3>
               <p className="text-slate-400 text-sm leading-relaxed">
-                Kalendarz spotkań oraz wyniki na żywo synchronizują się z naszymi serwerami 24 godziny na dobę. Przedmeczowe analizy AI są generowane dynamicznie na podstawie najświeższych doniesień, dzięki czemu zawsze opierają się na aktualnej sytuacji kadrowej i najnowszych trendach statystycznych.
+                Model statystyczny obejmuje Premier League, Championship, La Liga, Bundesligę, Serie A, Ligue 1, Eredivisie, Primeira Liga oraz Ligę Mistrzów. Analizy innych rozgrywek (np. reprezentacji czy pucharów krajowych) są przygotowywane przez AI bez modelu statystycznego i należy traktować je z większą ostrożnością.
+              </p>
+            </div>
+
+            <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl hover:border-slate-700 transition-colors">
+              <h3 className="text-emerald-400 font-bold text-lg mb-2">Czy analizy są darmowe?</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Tak. Wszystkie analizy, prognozy i historia skuteczności są dostępne bezpłatnie. Serwis utrzymuje się z reklam.
               </p>
             </div>
 
@@ -196,14 +203,14 @@ export default async function HomePage() {
             <div>
               <h4 className="text-white font-bold mb-4">Sports Platform</h4>
               <p className="text-slate-500 text-xs leading-relaxed">
-                Innowacyjne narzędzie analityczne dla fanów sportu. Wykorzystujemy potęgę sztucznej inteligencji, by dostarczać najbardziej precyzyjne prognozy rynkowe na podstawie twardych danych.
+                Statystyczne analizy meczów piłkarskich dla fanów sportu. Łączymy model matematyczny oparty na wynikach sezonu z opisem przygotowanym przez sztuczną inteligencję.
               </p>
             </div>
 
             <div>
               <h4 className="text-white font-bold mb-4">Ważna informacja</h4>
               <p className="text-slate-500 text-xs leading-relaxed bg-slate-900/50 p-3 rounded-xl border border-slate-800/80">
-                Serwis ma charakter wyłącznie informacyjny i statystyczny. Prezentowane dane opierają się na modelach matematycznych i nie stanowią porady finansowej ani zachęty do udziału w grach losowych. Naszym celem jest edukacja i dostarczanie rzetelnych analiz sportowych.
+                Serwis ma charakter wyłącznie informacyjny i statystyczny. Prezentowane dane opierają się na modelach matematycznych, nie gwarantują wyniku i nie stanowią porady finansowej ani zachęty do udziału w grach losowych. Treści przeznaczone dla osób pełnoletnich (18+). Hazard może uzależniać.
               </p>
             </div>
           </div>
