@@ -213,7 +213,7 @@ export default async function HistoryPage({ searchParams }: any) {
                         </span>
                         {isHot && (
                           <span className="inline-block text-[10px] font-black text-red-500 bg-red-500/10 border border-red-500/30 px-2 py-0.5 rounded animate-pulse w-fit mx-auto sm:mx-0">
-                            🔥 HOT VALUEBET
+                            🔥 WYSOKA PEWNOŚĆ
                           </span>
                         )}
                       </div>
