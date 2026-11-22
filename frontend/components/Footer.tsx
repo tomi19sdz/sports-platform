@@ -20,6 +20,11 @@ export default function Footer() {
         </div>
         {/* --------------------------------------- */}
 
+        <p className="mb-4 text-slate-500 text-xs max-w-2xl mx-auto leading-relaxed">
+          🔞 Treści mają charakter informacyjny i statystyczny, są przeznaczone dla osób pełnoletnich
+          i nie stanowią zachęty do udziału w grach losowych. Hazard może uzależniać.
+        </p>
+
         <p className="mb-3 text-slate-400 font-bold">
           © {new Date().getFullYear()} Sports Platform. Wszelkie prawa zastrzeżone.
         </p>
