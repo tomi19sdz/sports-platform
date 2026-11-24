@@ -184,7 +184,7 @@ export default async function HomePage() {
             <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl hover:border-slate-700 transition-colors">
               <h3 className="text-emerald-400 font-bold text-lg mb-2">Które rozgrywki obejmuje model?</h3>
               <p className="text-slate-400 text-sm leading-relaxed">
-                Model statystyczny obejmuje Premier League, Championship, La Liga, Bundesligę, Serie A, Ligue 1, Eredivisie, Primeira Liga oraz Ligę Mistrzów. Analizy innych rozgrywek (np. reprezentacji czy pucharów krajowych) są przygotowywane przez AI bez modelu statystycznego i należy traktować je z większą ostrożnością.
+                Model statystyczny obejmuje Premier League, Championship, La Liga, Bundesligę, Serie A, Ligue 1, Eredivisie oraz Primeira Liga. Analizy innych rozgrywek (np. Ligi Mistrzów, reprezentacji czy pucharów krajowych) są przygotowywane przez AI bez modelu statystycznego i należy traktować je z większą ostrożnością.
               </p>
             </div>
 
