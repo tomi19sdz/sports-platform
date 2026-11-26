@@ -16,13 +16,14 @@ interface Match {
   home_score: number | null;
   away_score: number | null;
   status: string;
-  prediction_status: 'EXACT' | 'WINNER' | 'WRONG' | null;
+  prediction_status: 'NOPICK' | 'EXACT' | 'WINNER' | 'WRONG' | null;
   is_valuebet?: boolean; // Dodane pole wyłapujące gorące mecze
 }
 
 const getStatusStyles = (status: string | null) => {
   switch (status) {
-    case 'EXACT': return 'bg-emerald-500/20 border-emerald-500 text-emerald-400';
+    case 'NOPICK': return 'bg-slate-700/40 border-slate-500 text-slate-300';
+    case 'EXACT': return 'bg-blue-500/20 border-blue-500 text-blue-400';
     case 'WINNER': return 'bg-blue-500/20 border-blue-500 text-blue-400';
     case 'WRONG': return 'bg-red-500/20 border-red-500 text-red-400';
     default: return 'bg-slate-800 border-slate-700 text-slate-300';
@@ -89,14 +90,14 @@ export default async function HistoryPage({ searchParams }: any) {
 
   pastMatches.sort((a, b) => b[0].localeCompare(a[0]));
 
-  let exactCount = 0;
+  let nopickCount = 0;
   let winnerCount = 0;
   let wrongCount = 0;
 
   pastMatches.forEach(([_, matches]) => {
     matches.forEach((match) => {
-      if (match.prediction_status === 'EXACT') exactCount++;
-      else if (match.prediction_status === 'WINNER') winnerCount++;
+      if (match.prediction_status === 'NOPICK') nopickCount++;
+      else if (match.prediction_status === 'WINNER' || match.prediction_status === 'EXACT') winnerCount++;
       else if (match.prediction_status === 'WRONG') wrongCount++;
     });
   });
@@ -155,12 +156,12 @@ export default async function HistoryPage({ searchParams }: any) {
           </form>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-            <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 flex items-center justify-between">
+            <div className="bg-slate-700/20 border border-slate-600/50 rounded-2xl p-4 flex items-center justify-between">
               <div className="flex items-center">
-                <span className="w-3 h-3 bg-emerald-500 rounded-full mr-2"></span>
-                <span className="text-emerald-400 font-semibold text-sm">Poprawny wynik</span>
+                <span className="w-3 h-3 bg-slate-400 rounded-full mr-2"></span>
+                <span className="text-slate-300 font-semibold text-sm">Analiza bez typu</span>
               </div>
-              <span className="text-2xl font-black text-emerald-400">{exactCount}</span>
+              <span className="text-2xl font-black text-slate-300">{nopickCount}</span>
             </div>
             
             <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-4 flex items-center justify-between">
